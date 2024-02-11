@@ -47,10 +47,10 @@ class UserController extends Controller
         }
 
         try {
-            $request->validate($request, [
+            $this->validate($request, [
                 'name'     => 'required|string',
                 'username' => 'required|string|unique:users',
-                'phone'    => 'required|string|min:11|unique:users',
+                'phone'    => 'required|string|min:10|unique:users',
                 'email'    => 'required|email|unique:users',
                 'password' => 'required|string|confirmed|min:6',
                 'roles'    => 'required'
@@ -68,10 +68,10 @@ class UserController extends Controller
 
             if($user) {
                 $user->assignRole(implode(',', $request->roles));
-                return redirect('/users')->with(['success' => 'User created successfully!']);
+                return redirect('/users/platform-users')->with(['success' => 'User created successfully!']);
             }
         } catch (\Exception $th) {
-            return back()->withError('Failed to create the user');
+            return back()->withError($th->getMessage());
         }
     }
 
@@ -104,10 +104,10 @@ class UserController extends Controller
             if($request->has('password')) {
                 $user->password     = Hash::make($request->password);
             }
-            $user->user_type    = $request->user_type;
+            $user->assignRole(implode(',', $request->roles));
             $user->update();
 
-            return redirect('/users')->withSuccess('User updated successfully');
+            return redirect('/users/platform-users')->withSuccess('User updated successfully');
             
         } catch (\Exception $exception) {
             return back()->withError('Could not Update the selected user');
@@ -144,7 +144,7 @@ class UserController extends Controller
         try {
             $user = User::find($request->user_id);
             if($user->delete()) {
-                return redirect()->route('user')->withSuccess('User deleted successfully!');
+                return redirect()->route('user.platform')->withSuccess('User deleted successfully!');
             }
         } catch (\Exception $th) {
             return back()->withErrors('User was not deleted');

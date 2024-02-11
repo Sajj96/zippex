@@ -145,6 +145,17 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasManyThrough(Product::class, Cart::class);
     }
 
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
+
+    public function cartItems()
+    {
+        $this->belongsToMany(Product::class, 'carts')
+                ->withPivot(['id', 'user_id', 'product_id', 'quantity', 'status', 'created_at']);
+    }
+
     public function getRoleNamesAttribute(){
         if ($this->getRoleNames()->count() > 0) {
             $roles = $this->getRoleNames()->all();

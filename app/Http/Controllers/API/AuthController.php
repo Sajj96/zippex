@@ -138,7 +138,8 @@ class AuthController extends Controller
                 "name" => $user->name,
                 "username" => $user->username,
                 "email" => $user->email,
-                "phone" => $user->phone
+                "phone" => $user->phone,
+                'referral_code' => $user->referralCode
             )
         ]);
     }

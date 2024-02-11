@@ -11,6 +11,10 @@ class Cart extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public const STATUS_NEW = 0;
+    public const STATUS_CHECKEDOUT = 1;
+    public const STATUS_EXPIRED = 2;
+
     protected $fillable = [
         'user_id',
         'product_id',

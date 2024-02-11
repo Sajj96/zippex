@@ -12,7 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('user_addresses', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('user_id');
+            $table->string('street');
+            $table->string('ward');
+            $table->string('district');
+            $table->string('region');
+            $table->string('country')->nullable();
             $table->timestamps();
         });
     }

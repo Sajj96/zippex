@@ -25,7 +25,7 @@ class CartController extends Controller
 
         try {
 
-            $cart = Cart::whereId($request->user_id)->first();
+            $cart = Cart::whereId($request->user_id)->get();
             if(!$cart){
                 return response()->json(['error' => 'Cart not found']);
             }

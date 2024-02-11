@@ -18,7 +18,6 @@
         </div>
         <div class="col-lg-5 col-md-6 col-sm-12">
             <button class="btn btn-primary btn-icon float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-arrow-right"></i></button>
-            <a href="{{ route('product.add') }}" class="btn btn-primary float-right right_icon_toggle_btn" type="button"><i class="zmdi zmdi-plus"></i> Add User</a>
         </div>
     </div>
 </div>

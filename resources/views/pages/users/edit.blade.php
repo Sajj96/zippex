@@ -1,4 +1,4 @@
-@extends('layouts.master', ['title' => 'User | Add User'])
+@extends('layouts.master', ['title' => 'User | Edit User'])
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('assets/plugins/summernote/dist/summernote.css') }}" />
@@ -11,11 +11,11 @@
 <div class="block-header">
     <div class="row">
         <div class="col-lg-7 col-md-6 col-sm-12">
-            <h2>Add User</h2>
+            <h2>Edit User</h2>
             <ul class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('home') }}"><i class="zmdi zmdi-home"></i> Home</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('user.platform') }}">Users</a></li>
-                <li class="breadcrumb-item active">Add User</li>
+                <li class="breadcrumb-item active">Edit User</li>
             </ul>
             <button class="btn btn-primary btn-icon mobile_menu" type="button"><i class="zmdi zmdi-sort-amount-desc"></i></button>
         </div>
@@ -35,29 +35,29 @@
                     <h2><strong>User</strong> Details</h2>
                 </div>
                 <div class="body">
-                    <form id="form_validation" method="POST" action="{{ route('user.add') }}" enctype="multipart/form-data">
+                    <form id="form_validation" method="POST" action="{{ route('user.edit') }}">
                         @csrf
                         <div class="row">
                             <div class="form-group col-md-6 form-float">
                                 <label for="">Name</label>
-                                <input type="text" class="form-control" placeholder="Enter full name" name="name" value="{{ old('name') }}" required autofocus>
+                                <input type="text" class="form-control" placeholder="Enter full name" name="name" value="{{ $user->name }}" required autofocus>
                             </div>
                             <div class="form-group col-md-6 form-float">
                                 <label for="">Username</label>
-                                <input type="text" class="form-control" placeholder="Enter username" name="username" value="{{ old('username') }}" required>
+                                <input type="text" class="form-control" placeholder="Enter username" name="username" value="{{ $user->username }}" required>
                             </div>
                         </div>
                         <div class="row">
                             <div class="form-group col-md-6 form-float">
                                 <label for="">Email</label>
-                                <input type="email" class="form-control" placeholder="Enter email address" name="email" value="{{ old('email') }}" required>
+                                <input type="email" class="form-control" placeholder="Enter email address" name="email" value="{{ $user->email }}" required>
                             </div>
                             <div class="form-group col-md-6 form-float">
                                 <label for="">Phone</label>
-                                <input type="number" class="form-control" placeholder="Enter phone number" name="phone" value="{{ old('phone') }}" required>
+                                <input type="number" class="form-control" placeholder="Enter phone number" name="phone" value="{{ $user->phone }}" required>
                             </div>
                             <div class="form-group col-md-6 form-float">
-                                <label for="">Password</label>
+                                <label for="">New Password</label>
                                 <input type="password" class="form-control" placeholder="Enter password" name="password" value="{{ old('password') }}" required autocomplete="new-password">
                             </div>
                             <div class="form-group col-md-6 form-float">
@@ -68,12 +68,12 @@
                                 <label for="">Roles</label>
                                 <select class="form-control show-tick ms select2" multiple data-placeholder="Select role(s)" name="roles[]">
                                     @foreach($roles as $role)
-                                    <option value="{{ $role->name }}">{{ $role->name }}</option>
+                                    <option @if(in_array($role->name, $userRoles)) selected @endif value="{{ $role->name }}">{{ $role->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
                         </div>
-                        <button class="btn btn-raised btn-primary waves-effect" type="submit">Save</button>
+                        <button class="btn btn-raised btn-primary waves-effect" type="submit">Save Changes</button>
                     </form>
                 </div>
             </div>
