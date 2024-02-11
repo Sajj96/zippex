@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -36,9 +37,18 @@ Route::middleware('auth')->group(function() {
 
     Route::prefix('/users')->controller(UserController::class)->group(function () {
         Route::get('/', 'index')->name('user');
+        Route::get('/platform-users', 'getPlatformUsers')->name('user.platform');
+        Route::get('/view/{id?}', 'show')->name('user.show');
         Route::match(['get', 'post'], '/add', 'add')->name('user.add');
         Route::match(['get', 'post'], '/edit/{id?}', 'edit')->name('user.edit');
         Route::post('/delete', 'delete')->name('user.delete');
+    });
+
+    Route::prefix('/roles')->controller(RoleController::class)->group(function () {
+        Route::get('/', 'index')->name('role');
+        Route::match(['get', 'post'], '/add', 'add')->name('role.add');
+        Route::match(['get', 'post'], '/edit/{id?}', 'edit')->name('role.edit');
+        Route::post('/delete', 'delete')->name('role.delete');
     });
 
     Route::prefix('/product-categories')->controller(ProductCategoryController::class)->group(function () {

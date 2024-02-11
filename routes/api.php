@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\CartController;
+use App\Http\Controllers\API\OrderController;
+use App\Http\Controllers\API\PasswordResetController;
+use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,22 +26,35 @@ Route::get('/healthcheck', function(){
 
 //URL begins with api/auth/<endpoint>
 //These end points are not authenticated
-Route::group(['prefix' => 'auth' ], function () {
-    Route::post('/register', [\App\Http\Controllers\API\AuthController::class,'register'])->name('register');
-    Route::post('/login', [\App\Http\Controllers\API\AuthController::class,'login'])->name('login');
-    Route::post('forgot-password', [App\Http\Controllers\API\PasswordResetController::class, 'resetPassword'])->name('reset.password.post');
-    Route::post('confirm-password', [App\Http\Controllers\API\PasswordResetController::class, 'confirmPassword'])->name('reset.password.post');
+Route::prefix('/auth')->controller(AuthController::class)->group(function () {
+    Route::post('/register', 'register')->name('auth.register');
+    Route::post('/login', 'login')->name('auth.login');
+    Route::post('/logout', 'logout')->name('auth.logout')->middleware('auth:api');
+    Route::post('/refresh', 'refresh')->name('refresh.token')->middleware('auth:api');
+    Route::post('/me', 'me')->name('me')->middleware('auth:api');
+});
+
+Route::prefix('/passwords')->controller(PasswordResetController::class)->group(function () {
+    Route::post('/forgot-password', 'resetPassword')->name('password.forgot');
+    Route::post('/change-password', 'changePassword')->name('password.change')->middleware('auth:api');
 });
 
 Route::middleware('auth:api')->group(function ()
 {
-    Route::post('logout', [\App\Http\Controllers\API\AuthController::class,'logout'])->name('logout');
-    Route::post('refresh', [\App\Http\Controllers\API\AuthController::class,'refresh'])->name('refresh.token');
-    Route::post('me', [\App\Http\Controllers\API\AuthController::class,'me'])->name('me');
-    Route::post('change-password', [\App\Http\Controllers\API\PasswordResetController::class,'changePassword'])->name('change.password');
+    Route::prefix('/products')->controller(ProductController::class)->group(function () {
+        Route::get('/', 'index')->name('product.all');
+        Route::post('/view', 'show')->name('product.view');
+    });
 
-    Route::group(['prefix' => 'users' ], function () {
-        Route::get('/', [\App\Http\Controllers\API\UserController::class,'index'])->name('user');
-        Route::post('/details', [\App\Http\Controllers\API\UserController::class,'getUser'])->name('user.phone');
+    Route::prefix('/carts')->controller(CartController::class)->group(function () {
+        Route::get('/', 'index')->name('cart.all');
+        Route::post('/add', 'add')->name('cart.add');
+        Route::post('/edit', 'edit')->name('cart.edit');
+        Route::post('/delete', 'delete')->name('cart.delete');
+    });
+
+    Route::prefix('/orders')->controller(OrderController::class)->group(function () {
+        Route::get('/', 'index')->name('order.all');
+        Route::post('/add', 'add')->name('order.add');
     });
 });

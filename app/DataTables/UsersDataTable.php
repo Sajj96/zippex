@@ -23,8 +23,21 @@ class UsersDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
-            ->addColumn('created_on', function ($row) {
-                return date('M d Y', strtotime($row->created_at));
+            ->addColumn('referrer', function ($row) {
+                return $row->referrer->username ?? 'Not Specified';
+            })
+            ->addColumn('referrals', function ($row) {
+                return count($row->referrals)  ?? '0';
+            })
+            ->addColumn('joined', function ($row) {
+                return ($row->created_at)->format('M d Y');
+            })
+            ->addColumn('status', function ($row) {
+                if ($row->status == 1) {
+                    return '<span class="badge badge-success mr-2">Active</span>';
+                } else {
+                    return '<span class="badge badge-danger mr-2">Inactive</span>';
+                }
             })
             ->addColumn('action', function($row){
                 return '
@@ -39,7 +52,10 @@ class UsersDataTable extends DataTable
                     </div>
                 ';
             })
-            ->rawColumns(['action'])
+            ->filter(function ($query) {
+                $query->whereNot('user_type', User::ADMIN);
+            })
+            ->rawColumns(['status', 'action'])
             ->startsWithSearch()
             ->setRowId('id');
     }
@@ -83,7 +99,12 @@ class UsersDataTable extends DataTable
             Column::make('username'),
             Column::make('email'),
             Column::make('phone'),
-            Column::make('created_on'),
+            Column::make('referrer'),
+            Column::make('referrals'),
+            Column::make('joined'),
+            Column::computed('status')
+                  ->width(80)
+                  ->addClass('text-center'),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)

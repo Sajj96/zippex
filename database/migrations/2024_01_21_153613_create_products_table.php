@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('product_category_id');
             $table->string('name');
             $table->double('price');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->integer('quantity');
             $table->timestamps();
             $table->softDeletes();

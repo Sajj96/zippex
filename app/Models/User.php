@@ -4,24 +4,28 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
 
     public const ADMIN = 0;
     public const CLIENT = 1;
-    public const VENDOR = 2;
 
     public const INACTIVE = 0;
     public const ACTIVE = 1;
+
+    public const ROLE_SUPER_ADMIN = "Super Admin";
 
     /**
      * The attributes that are mass assignable.
@@ -136,6 +140,19 @@ class User extends Authenticatable implements JWTSubject
         return $users;
     }
 
+    public function cart(): HasManyThrough
+    {
+        return $this->hasManyThrough(Product::class, Cart::class);
+    }
+
+    public function getRoleNamesAttribute(){
+        if ($this->getRoleNames()->count() > 0) {
+            $roles = $this->getRoleNames()->all();
+            return implode(',', $roles);
+        }
+        return "";
+    }
+    
     public function getLevelOneActiveReferrals($id) {
         $referral = DB::table('users','t1')
                         ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')

@@ -104,19 +104,43 @@
                     </div>
                 </div>
             </li>
-            <li class="active"><a href="{{ route('home') }}"><i class="zmdi zmdi-home"></i><span>Dashboard</span></a></li>
-            <li> <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-collection-item"></i><span>Products</span></a>
+            <li class="@if(\Request::is('home'))  active @endif"><a href="{{ route('home') }}"><i class="zmdi zmdi-home"></i><span>Dashboard</span></a></li>
+            @can(\App\Models\PermissionSet::PERMISSION_PRODUCTS_VIEW)
+            <li class="@if(\Request::is('products'))  active @endif"> <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-collection-item"></i><span>Products</span></a>
                 <ul class="ml-menu">
+                    @can(\App\Models\PermissionSet::PERMISSION_CATEGORIES_VIEW)
                     <li><a href="{{ route('product.category') }}">Categories</a></li>
+                    @endcan
                     <li><a href="{{ route('product') }}">All Products</a></li>
                 </ul>
             </li>
-            <li><a href="javascript:void(0);"><i class="zmdi zmdi-mall"></i><span>Orders</span></a></li>
+            @endcan
+            @can(\App\Models\PermissionSet::PERMISSION_ORDERS_VIEW)
+            <li class=""><a href="javascript:void(0);"><i class="zmdi zmdi-mall"></i><span>Orders</span></a></li>
+            @endcan
+            @can(\App\Models\PermissionSet::PERMISSION_TRANSACTIONS_VIEW)
             <li><a href="javascript:void(0);"><i class="zmdi zmdi-money"></i><span>Transactions</span></a></li>
+            @endcan
+            @can(\App\Models\PermissionSet::PERMISSION_BLOGS_VIEW)
             <li> <a href="javascript:void(0);"><i class="zmdi zmdi-blogger"></i><span>Blog</span></a></li>
-            <li> <a href="{{ route('user') }}"><i class="zmdi zmdi-accounts"></i><span>Users</span></a></li>
+            @endcan
+            @can(\App\Models\PermissionSet::PERMISSION_ROLES_VIEW)
+            <li class="@if(\Request::is('roles') || \Request::is('roles/*'))  active @endif"> <a href="{{ route('role') }}"><i class="zmdi zmdi-shield-check"></i><span>Roles</span></a></li>
+            @endcan
+            @can(\App\Models\PermissionSet::PERMISSION_USERS_VIEW)
+            <li class="@if(\Request::is('users') || \Request::is('users/*'))  active @endif"> <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-accounts"></i><span>Users</span></a>
+                <ul class="ml-menu">
+                    <li><a href="{{ route('user') }}">Customers</a></li>
+                    <li><a href="{{ route('user.platform') }}">Platform Users</a></li>
+                </ul>
+            </li>
+            @endcan
+            @can(\App\Models\PermissionSet::PERMISSION_FAQS_VIEW)
             <li> <a href="javascript:void(0);"><i class="zmdi zmdi-help-outline"></i><span>FAQ</span></a></li>
+            @endcan
+            @can(\App\Models\PermissionSet::PERMISSION_TESTIMONIES_VIEW)
             <li> <a href="javascript:void(0);"><i class="zmdi zmdi-comments"></i><span>Testimonies</span></a></li>
+            @endcan
         </ul>
     </div>
 </aside>

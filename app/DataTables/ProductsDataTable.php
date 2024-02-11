@@ -23,6 +23,9 @@ class ProductsDataTable extends DataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
+            ->addColumn('image', function ($row) {
+                return '<img src="'.$row->image_path.'" width="48" alt="Product img">';
+            })
             ->addColumn('category', function ($row) {
                 return $row->categoryName;
             })
@@ -42,7 +45,7 @@ class ProductsDataTable extends DataTable
                     </div>
                 ';
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['action', 'image'])
             ->startsWithSearch()
             ->setRowId('id');
     }
@@ -82,6 +85,7 @@ class ProductsDataTable extends DataTable
         return [
             Column::make('id')
                     ->data('DT_RowIndex'),
+            Column::make('image'),
             Column::make('name'),
             Column::make('category'),
             Column::make('price'),

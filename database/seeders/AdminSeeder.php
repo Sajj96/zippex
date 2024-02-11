@@ -6,6 +6,8 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class AdminSeeder extends Seeder
 {
@@ -23,5 +25,10 @@ class AdminSeeder extends Seeder
         $super_admin->user_type = User::ADMIN;
         $super_admin->status = User::ACTIVE;
         $super_admin->save();
+
+        $role = Role::create(["name" => "Super Admin"]);
+        $permissions = Permission::pluck('id', 'id')->all();
+        $role->syncPermissions($permissions);
+        $super_admin->assignRole([$role->id]);
     }
 }

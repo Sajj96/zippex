@@ -17,9 +17,8 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name'          => 'required|string',
             'username'      => 'required|string|unique:users',
-            'phone'         => 'required|string|min:11',
-            'email'         => 'required|email',
-            'user_type'     => 'required|integer|in:' . implode(',', [User::CLIENT, User::VENDOR]),
+            'phone'         => 'required|string|min:11|unique:users',
+            'email'         => 'required|email|unique:users',
             'password'      => 'required|string',
         ]);
 
@@ -27,7 +26,7 @@ class AuthController extends Controller
             return response()->json(['error' => $validator->errors()->toArray()]);
         }
 
-        $user = User::whereUsername($request->username)->where('user_type', $request->user_type)->first();
+        $user = User::whereUsername($request->username)->wherePhone($request->phone)->first();
         if (!$user) {
             $user_type = (int) substr($request->referrer_code,-1);
             $phone = '255' . substr($request->referrer_code,0,9);
@@ -40,9 +39,9 @@ class AuthController extends Controller
             $user->email         = $request->email;
             $user->country       = $request->country;
             $user->password      = Hash::make($request->password);
-            $user->user_type     = $request->user_type;
+            $user->user_type     = User::CLIENT;
             $user->referrer_id   = $referrer ? $referrer->id : null;
-            $user->status        = $request->user_type == 2 ? User::INACTIVE : 1;
+            $user->status        = User::ACTIVE;
 
             if (!$user->save()) {
 
@@ -64,20 +63,19 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only(['phone', 'password', 'user_type']);
+        $credentials = $request->only(['phone', 'password']);
         $validator = Validator::make($credentials, [
             'phone'     => 'required|string',
-            'password'  => 'required|string',
-            'user_type' => 'required|integer'
+            'password'  => 'required|string'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => 'Valid phone number,password and user type are required'], 422);
+            return response()->json(['error' => 'Valid phone number and password are required'], 422);
         }
 
         try {
 
-            $user = User::where('phone',  $request->phone)->where('user_type', $request->user_type)->where('status', User::ACTIVE)->where('deleted_at', NULL)->first();
+            $user = User::wherePhone($request->phone)->first();
             if ($user && Hash::check($request->password, $user->password)) {
                 $token = auth('api')->login($user);
                 return $this->respondWithToken($token, $user);
@@ -136,7 +134,12 @@ class AuthController extends Controller
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => null,
-            'user' => $user
+            'user' => (object) array(
+                "name" => $user->name,
+                "username" => $user->username,
+                "email" => $user->email,
+                "phone" => $user->phone
+            )
         ]);
     }
 }
