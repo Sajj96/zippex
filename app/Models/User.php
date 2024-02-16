@@ -156,6 +156,11 @@ class User extends Authenticatable implements JWTSubject
                 ->withPivot(['id', 'user_id', 'product_id', 'quantity', 'status', 'created_at']);
     }
 
+    public function orders()
+    {
+        $this->hasMany(Order::class);
+    }
+
     public function getRoleNamesAttribute(){
         if ($this->getRoleNames()->count() > 0) {
             $roles = $this->getRoleNames()->all();
@@ -164,73 +169,33 @@ class User extends Authenticatable implements JWTSubject
         return "";
     }
     
-    public function getLevelOneActiveReferrals($id) {
-        $referral = DB::table('users','t1')
-                        ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                        ->where(DB::raw('t1.id'), DB::raw($id))
-                        ->where(DB::raw('t1.active'), DB::raw(self::ACTIVE))
-                        ->where(DB::raw('t2.active'), DB::raw(self::ACTIVE))
-                        ->get();
-
-        return $referral;
+    public function getReferralsAndDownlines($id, $level, $selectColumns = []) {
+        $referralTable = 't' . $level;
+        $referralModel = 'User';
+    
+        $referrals = $referralModel::select($selectColumns ?: ["$referralTable.*"])
+            ->from("users as t1")
+            ->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t1.id")
+            ->where("t1.id", $id);
+    
+        if ($level > 1) {
+            $referrals->leftJoin("users as t2", "t2.referrer_id", '=', "$referralTable.id")
+                ->where("$referralTable.active", User::ACTIVE);
+        }
+    
+        $referrals = $referrals->get();
+    
+        $downlines = $referralModel::select($selectColumns ?: ["$referralTable.id", "$referralTable.username", "$referralTable.phone", "$referralTable.active"])
+            ->from("users as t1")
+            ->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t1.id")
+            ->where("t1.id", $id)
+            ->where("$referralTable.id", '<>', '')
+            ->get();
+    
+        return [
+            'referrals' => $referrals,
+            'downlines' => $downlines,
+        ];
     }
-
-    public function getLevelOneDownlines($id) {
-        $downlines = DB::table('users','t1')
-                    ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                    ->select(DB::raw('t2.id as id'),DB::raw('t2.username as username'),DB::raw('t2.phone as phone'),DB::raw('t2.active as active'))
-                    ->where(DB::raw('t1.id'), DB::raw($id))
-                    ->where(DB::raw('t2.id'), "<>","")
-                    ->get();
-
-        return $downlines;
-    }
-
-    public function getLevelTwoActiveReferrals($id) {
-        $referral = DB::table('users','t1')
-                        ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                        ->leftJoin('users as t3', 't3.referrer_id','=','t2.id')
-                        ->where(DB::raw('t1.id'), DB::raw($id))
-                        ->where(DB::raw('t3.active'), DB::raw(User::ACTIVE))
-                        ->get();
-
-        return $referral;
-    }
-
-    public function getLevelTwoDownlines($id) {
-        $downlines = DB::table('users','t1')
-                        ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                        ->leftJoin('users as t3', 't3.referrer_id','=','t2.id')
-                        ->select(DB::raw('t3.id as id'),DB::raw('t3.username as username'),DB::raw('t3.phone as phone'),DB::raw('t3.active as active'))
-                        ->where(DB::raw('t1.id'), DB::raw($id))
-                        ->where(DB::raw('t3.id'), "<>","")
-                        ->get();
-
-        return $downlines;
-    }
-
-    public function getLevelThreeActiveReferrals($id) {
-        $referral = DB::table('users','t1')
-                        ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                        ->leftJoin('users as t3', 't3.referrer_id','=','t2.id')
-                        ->leftJoin('users as t4', 't4.referrer_id','=','t3.id')
-                        ->where(DB::raw('t1.id'), DB::raw($id))
-                        ->where(DB::raw('t4.active'), DB::raw(User::ACTIVE))
-                        ->get();
-
-        return $referral;
-    }
-
-    public function getLevelThreeDownlines($id) {
-        $downlines = DB::table('users','t1')
-                        ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                        ->leftJoin('users as t3', 't3.referrer_id','=','t2.id')
-                        ->leftJoin('users as t4', 't4.referrer_id','=','t3.id')
-                        ->select(DB::raw('t4.id as id'),DB::raw('t4.username as username'),DB::raw('t4.phone as phone'),DB::raw('t4.active as active'))
-                        ->where(DB::raw('t1.id'), DB::raw($id))
-                        ->where(DB::raw('t4.id'), "<>","")
-                        ->get();
-
-        return $downlines;
-    }
+    
 }

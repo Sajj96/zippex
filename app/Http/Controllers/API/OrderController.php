@@ -23,13 +23,37 @@ class OrderController extends Controller
 
         try {
 
-            $order = Order::whereId($request->user_id)->with('items')->get();
+            $user = Auth::user();
+            $orders = $user->orders()->with('items')->get();
+
+            return response()->json([
+                'orders'          => $orders
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function show(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_id' => 'required|integer'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->toArray()]);
+        }
+
+        try {
+
+            $user = Auth::user();
+            $order = Order::where('user_id', $user->id)->whereId($request->order_id)->with('items')->get();
             if(!$order){
                 return response()->json(['error' => 'Order not found']);
             }
 
             return response()->json([
-                'orders'          => $order
+                'order'          => $order
             ]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
@@ -39,8 +63,8 @@ class OrderController extends Controller
     public function add(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id'      => 'required|integer',
-            'user_address' => 'required|integer'
+            'user_id'         => 'required|integer',
+            'user_address_id' => 'required|integer'
         ]);
 
         if($validator->fails()) {
@@ -56,19 +80,15 @@ class OrderController extends Controller
                 return response()->json(['warning' => 'Product already present in cart!']);
             }
 
-            $new_order = Order::create([
+            Order::create([
                 'user_id' => $user->id,
-                'product_id' => $request->product_id,
-                'quantity' => $request->quantity
+                'user_address_id' => $request->user_address_id,
+                'status' => Order::STATUS_PENDING
             ]);
 
-            if($new_order) {
-
-            }
-
-            return response()->json(['success' => 'Product added to cart successfully!']);
+            return response()->json(['success' => 'Order created successfully!']);
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Could not add to cart']);
+            return response()->json(['error' => 'Could not create order']);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()]);
         }

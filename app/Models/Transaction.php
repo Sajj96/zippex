@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class Transaction extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     const TRANSACTION_PENDING = 0;
     const TRANSACTION_SUCCESS = 1;
@@ -25,64 +25,78 @@ class Transaction extends Model
     const TYPE_ADCLICK = "Adclick";
     const TYPE_PUZZLE = "Puzzle";
 
+    /**
+     * Define relationships.
+     *
+     * @var array
+     */
+    protected $with = ['user'];
+
+    /**
+     * Get the user associated with the transaction.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the total earnings for a user.
+     *
+     * @return float
+     */
     public function getUserTotalEarnings($id)
     {
-        $rate1 = $this->getExchangeRate($id,5000,'TZS');
-        $rate2 = $this->getExchangeRate($id,3000,'TZS');
-        $rate3 = $this->getExchangeRate($id,2000,'TZS');
-        $referral_amount_level_1 = $rate1['amount'];
-        $referral_amount_level_2 = $rate2['amount'];
-        $referral_amount_level_3 = $rate3['amount'];
-        
+        $rates = [
+            'rate1' => $this->getExchangeRate($id, 5000, 'TZS'),
+            'rate2' => $this->getExchangeRate($id, 3000, 'TZS'),
+            'rate3' => $this->getExchangeRate($id, 2000, 'TZS'),
+        ];
 
-        $level_1 = DB::table('users','t1')
-                    ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                    ->where(DB::raw('t1.id'), DB::raw($id))
-                    ->where(DB::raw('t1.active'), DB::raw(User::USER_STATUS_ACTIVE))
-                    ->where(DB::raw('t2.active'), DB::raw(User::USER_STATUS_ACTIVE))
-                    ->get();
+        $referralAmounts = collect($rates)->pluck('amount');
 
-        $level_2 = DB::table('users','t1')
-                    ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                    ->leftJoin('users as t3', 't3.referrer_id','=','t2.id')
-                    ->where(DB::raw('t1.id'), DB::raw($id))
-                    ->where(DB::raw('t3.active'), DB::raw(User::USER_STATUS_ACTIVE))
-                    ->get();
+        $levels = $this->getUserLevels($id);
 
-        $level_3 = DB::table('users','t1')
-                    ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                    ->leftJoin('users as t3', 't3.referrer_id','=','t2.id')
-                    ->leftJoin('users as t4', 't4.referrer_id','=','t3.id')
-                    ->where(DB::raw('t1.id'), DB::raw($id))
-                    ->where(DB::raw('t4.active'), DB::raw(User::USER_STATUS_ACTIVE))
-                    ->get();
+        $totalEarnings = 0;
+        for ($i = 1; $i <= 3; $i++) {
+            $countLevel = count($levels[$i]) ?? 0;
+            $totalEarnings += $countLevel * $referralAmounts["rate{$i}"];
+        }
 
-        $count_level_1 = count($level_1) ?? 0;
-        $count_level_2 = count($level_2) ?? 0;
-        $count_level_3 = count($level_3) ?? 0;
-        $total_level_1 = $count_level_1 * $referral_amount_level_1;
-        $total_level_2 = $count_level_2 * $referral_amount_level_2;
-        $total_level_3 = $count_level_3 * $referral_amount_level_3;
-        $totalEarnings = $total_level_1 + $total_level_2 + $total_level_3;
         return $totalEarnings;
     }
 
-    public function getUserLevelOneEarnings($id)
+    /**
+     * Get user levels.
+     *
+     * @param int $id
+     * @return array
+     */
+    private function getUserLevels($id)
     {
-        $rate1 = $this->getExchangeRate($id,5000,'TZS');
-        $referral_amount_level_1 = $rate1['amount'];
-        
-        $level_1 = DB::table('users','t1')
-                    ->leftJoin('users as t2', 't2.referrer_id','=','t1.id')
-                    ->where(DB::raw('t1.id'), DB::raw($id))
-                    ->where(DB::raw('t1.active'), DB::raw(User::USER_STATUS_ACTIVE))
-                    ->where(DB::raw('t2.active'), DB::raw(User::USER_STATUS_ACTIVE))
-                    ->get();
+        $levels = [];
 
-        $count_level_1 = count($level_1) ?? 0;
-        $total_level_1 = $count_level_1 * $referral_amount_level_1;
-        $totalEarnings = $total_level_1;
-        return $totalEarnings;
+        for ($i = 1; $i <= 3; $i++) {
+            $levels[$i] = $this->getUserLevel($id, $i);
+        }
+
+        return $levels;
+    }
+
+    /**
+     * Get user referrals for a specific level.
+     *
+     * @param int $id
+     * @param int $level
+     * @return \Illuminate\Support\Collection
+     */
+    private function getUserLevel($id, $level)
+    {
+        $downline = $level - 1;
+        return User::leftJoin("users as t{$level}", "t{$level}.referrer_id", '=', "t{$downline}.id")
+            ->where("t1.id", $id)
+            ->where("t{$level}.active", User::ACTIVE)
+            ->get();
     }
 
     /**
@@ -93,19 +107,13 @@ class Transaction extends Model
     public function getUserBalance($id)
     {
         $totalEarnings = $this->getProfit($id);
-
         $withdrawn = $this->getWithdrawals($id);
+        $paymentForDownline = $this->getUserPaymentForDownline($id);
 
-        $bundle = Bundle::getUserBundleRequestAmount($id);
+        $withdrawnAmount = $withdrawn ?? 0;
+        $paymentAmount = $paymentForDownline ?? 0;
 
-        $payment_for_downline = $this->getUserPaymentForDownline($id);
-
-        $withdrawn_amount = $withdrawn ?? 0;
-        $payment_amount = $payment_for_downline ?? 0;
-        $bundle_amount = $bundle ?? 0;
-
-        $balance = ($totalEarnings - $withdrawn_amount - $bundle_amount) - $payment_amount;
-        return $balance;
+        return $totalEarnings - $withdrawnAmount - $paymentAmount;
     }
 
     /**
@@ -115,13 +123,13 @@ class Transaction extends Model
      */
     public function getUserWithdrawnAmount($id)
     {
-        $withdrawn = DB::table('transactions')
-                        ->where('transaction_type', self::TYPE_WITHDRAW)
-                        ->where('user_id', $id)
-                        ->sum('amount');
-        $amount = $this->getTransactionRate($id,$withdrawn,self::TYPE_WITHDRAW);
-        $withdrawn_amount = ($amount) ?? 0;
-        return $withdrawn_amount;
+        $withdrawn = $this->where('transaction_type', self::TYPE_WITHDRAW)
+            ->where('user_id', $id)
+            ->sum('amount');
+
+        $amount = $this->getTransactionRate($id, $withdrawn, self::TYPE_WITHDRAW);
+
+        return $amount['amount'] ?? 0;
     }
 
 
@@ -196,7 +204,7 @@ class Transaction extends Model
         $withdraw_request = DB::table('transactions')
                                 ->join('users','transactions.user_id','=','users.id')
                                 ->select('transactions.*','users.username','users.name')
-                                ->where('status',Transaction::TRANSACTION_PENDING)
+                                ->where('status',self::TRANSACTION_PENDING)
                                 ->get();
                                 
         $numRequest = count($withdraw_request) ?? 0;

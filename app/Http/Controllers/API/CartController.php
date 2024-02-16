@@ -15,23 +15,28 @@ class CartController extends Controller
 {
     public function index(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|integer'
-        ]);
-
-        if($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->toArray()]);
-        }
-
         try {
+             
+            $user = Auth::user();
+            $carts = Cart::where('user_id',$user->id)->get();
 
-            $cart = Cart::whereId($request->user_id)->get();
-            if(!$cart){
-                return response()->json(['error' => 'Cart not found']);
+            $cart_list = [];
+            foreach($carts as $cart){
+                if($cart->product) {
+                    $cart_list[] = array(
+                        "id" => $cart->product->id,
+                        "product_category_id" => $cart->product->product_category_id,
+                        "name" => $cart->product->name,
+                        "price" => $cart->product->price,
+                        "description" => strip_tags($cart->product->description),
+                        "image_path" => $cart->product->image_path,
+                        "quantity" => $cart->quantity
+                    );
+                }
             }
 
             return response()->json([
-                'cart'          => $cart
+                'cart'          => $cart_list
             ]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);

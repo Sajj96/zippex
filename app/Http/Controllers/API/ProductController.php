@@ -11,29 +11,40 @@ class ProductController extends Controller
 {
     public function index() 
     {
-        $products = Product::lazy();
-        return response()->json([ 'products' => $products ]);
+        $products = Product::get();
+        $product_list = [];
+        foreach($products as $product) {
+            $product_list[] = array(
+                    "id" => $product->id,
+                    "product_category_id" => $product->product_category_id,
+                    "name" => $product->name,
+                    "price" => $product->price,
+                    "description" => strip_tags($product->description),
+                    "quantity" => $product->quantity,
+                    "image_path" => $product->image_path
+            );
+        }
+        return response()->json([ 'products' => $product_list ]);
     }
 
-    public function show(Request $request)
+    public function show(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'product_id' => 'required|integer'
-        ]);
-
-        if($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->toArray()]);
-        }
-
         try {
-
-            $product = Product::find($request->product_id);
+            $product = Product::find($id);
             if(!$product){
                 return response()->json(['error' => 'Product not found']);
             }
 
             return response()->json([
-                'product'          => $product
+                'product'          => (object) array(
+                    "id" => $product->id,
+                    "product_category_id" => $product->product_category_id,
+                    "name" => $product->name,
+                    "price" => $product->price,
+                    "description" => strip_tags($product->description),
+                    "quantity" => $product->quantity,
+                    "image_path" => $product->image_path
+                )
             ]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);

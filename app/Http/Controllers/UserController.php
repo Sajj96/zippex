@@ -151,81 +151,32 @@ class UserController extends Controller
         }
     }
 
-    public function showLevelOne()
+    public function showTeamLevels()
     {
         $id = Auth::user()->id;
         $user = new User;
-        $active_referrals = $user->getLevelOneActiveReferrals($id);
-
-        $active_referrals = count($active_referrals) ?? 0;
-
-        $transaction = new Transaction;
-        $rate = $transaction->getExchangeRate($id,5000,'TZS');
-
-        $currency = $rate['currency'];
-        $amount = $rate['amount'];
-        
-
-        $downlines = $user->getLevelOneDownlines($id);
-        $level_two = $this->showLevelTwo();
-        $level_three = $this->showLevelThree();
-
-        return view('pages.team.index', compact('downlines','active_referrals','level_two', 'level_three', 'amount','currency'));
+    
+        $levelOne = $this->getLevelData($user, $id, 5000);
+        $levelTwo = $this->getLevelData($user, $id, 3000);
+        $levelThree = $this->getLevelData($user, $id, 2000);
+    
+        return view('pages.team.index', compact('levelOne', 'levelTwo', 'levelThree'));
     }
-
-    /**
-     * Show the Level 2 page.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function showLevelTwo()
+    
+    private function getLevelData(User $user, $id, $amount)
     {
-        $id = Auth::user()->id;
-        $user = new User;
-        $active_referrals = $user->getLevelTwoActiveReferrals($id);
-
-        $active_referrals = count($active_referrals) ?? 0;
-
+        $activeReferrals = $user->getActiveReferrals($id, $amount);
+        $activeReferralsCount = count($activeReferrals) ?? 0;
+    
         $transaction = new Transaction;
-        $rate = $transaction->getExchangeRate($id,3000,'TZS');
-
-        $currency = $rate['currency'];
-        $amount = $rate['amount'];
-        
-        $downlines = $user->getLevelTwoDownlines($id);
- 
-        return array(
-            'downlines' => $downlines, 
-            'active_referrals' => $active_referrals,
-            'amount' => $amount
-        );
+        $rate = $transaction->getExchangeRate($id, $amount, 'TZS');
+    
+        return [
+            'downlines' => $user->getDownlines($id),
+            'activeReferrals' => $activeReferralsCount,
+            'amount' => $rate['amount'],
+            'currency' => $rate['currency'],
+        ];
     }
-
-    /**
-     * Show the Level 3 page.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function showLevelThree()
-    {
-        $id = Auth::user()->id;
-        $user = new User;
-        $active_referrals = $user->getLevelThreeActiveReferrals($id);
-
-        $active_referrals = count($active_referrals) ?? 0;
-
-        $transaction = new Transaction;
-        $rate = $transaction->getExchangeRate($id,2000,'TZS');
-
-        $currency = $rate['currency'];
-        $amount = $rate['amount'];
-
-        $downlines = $user->getLevelThreeDownlines($id);
-
-        return array(
-            'downlines' => $downlines, 
-            'active_referrals' => $active_referrals,
-            'amount' => $amount
-        );
-    }
+    
 }

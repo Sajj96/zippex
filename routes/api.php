@@ -5,6 +5,7 @@ use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\PasswordResetController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\ProductCategoryController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -43,7 +44,12 @@ Route::middleware('auth:api')->group(function ()
 {
     Route::prefix('/products')->controller(ProductController::class)->group(function () {
         Route::get('/', 'index')->name('product.all');
-        Route::post('/view', 'show')->name('product.view');
+        Route::get('/view/{id}', 'show')->name('product.view');
+    });
+
+    Route::prefix('/product-categories')->controller(ProductCategoryController::class)->group(function () {
+        Route::get('/', 'index')->name('category.all');
+        Route::get('/view/{id}', 'getProducts')->name('category.product');
     });
 
     Route::prefix('/carts')->controller(CartController::class)->group(function () {

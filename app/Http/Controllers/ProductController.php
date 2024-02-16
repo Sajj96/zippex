@@ -76,7 +76,7 @@ class ProductController extends Controller
 
                 $manager = new ImageManager(new GdDriver());
                 $image = $manager->read($request->file('image')->getRealPath());
-                $image->scale(width: 300);
+                $image->scale(width: 400);
                 $image->toPng()->save(storage_path('/app/public/products/' . $fileName));
                 $fileLink = url('storage/products/'.$fileName);
 
