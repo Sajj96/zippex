@@ -16,6 +16,7 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'code',
         'user_address_id',
         'status'
     ];
@@ -30,8 +31,9 @@ class Order extends Model
         return $this->belongsTo(UserAddress::class);
     }
 
-    public function items()
+    public function cart()
     {
-        return $this->hasMany(OrderItem::class);
+        return $this->belongsToMany(Cart::class, 'order_items')
+                    ->withPivot(['id', 'order_id', 'cart_id', 'amount']);
     }
 }

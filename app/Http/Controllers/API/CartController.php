@@ -18,21 +18,19 @@ class CartController extends Controller
         try {
              
             $user = Auth::user();
-            $carts = Cart::where('user_id',$user->id)->get();
+            $carts = $user->products()->whereStatus(Cart::STATUS_NEW)->get();
 
             $cart_list = [];
             foreach($carts as $cart){
-                if($cart->product) {
-                    $cart_list[] = array(
-                        "id" => $cart->product->id,
-                        "product_category_id" => $cart->product->product_category_id,
-                        "name" => $cart->product->name,
-                        "price" => $cart->product->price,
-                        "description" => strip_tags($cart->product->description),
-                        "image_path" => $cart->product->image_path,
-                        "quantity" => $cart->quantity
-                    );
-                }
+                $cart_list[] = array(
+                    "id" => $cart->pivot->id,
+                    "product_category_id" => $cart->product_category_id,
+                    "name" => $cart->name,
+                    "price" => $cart->price,
+                    "description" => strip_tags($cart->description),
+                    "image_path" => $cart->image_path,
+                    "quantity" => $cart->pivot->quantity
+                );
             }
 
             return response()->json([
@@ -80,7 +78,7 @@ class CartController extends Controller
             ]);
 
             if($new_cart) {
-                $product->quantity = $product->quantity - $request->quantity;
+                $product->quantity = intval($product->quantity -  $request->quantity);
                 $product->update();
             }
 

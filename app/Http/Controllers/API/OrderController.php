@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\UserAddress;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -13,18 +16,10 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'user_id' => 'required|integer'
-        ]);
-
-        if($validator->fails()) {
-            return response()->json(['error' => $validator->errors()->toArray()]);
-        }
-
         try {
 
             $user = Auth::user();
-            $orders = $user->orders()->with('items')->get();
+            $orders = $user->orders()->with('cart')->get();
 
             return response()->json([
                 'orders'          => $orders
@@ -63,8 +58,8 @@ class OrderController extends Controller
     public function add(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id'         => 'required|integer',
-            'user_address_id' => 'required|integer'
+            'user_address_id' => 'required|integer',
+            'carts' => 'required'
         ]);
 
         if($validator->fails()) {
@@ -74,17 +69,39 @@ class OrderController extends Controller
         try {
             
             $user = Auth::user();
-            $order = Order::find($user->id);
+            $address = UserAddress::where('user_id',$user->id)->whereId($request->user_address_id)->first();
 
-            if($order) {
-                return response()->json(['warning' => 'Product already present in cart!']);
+            if(!$address) {
+                return response()->json(['warning' => 'Address not found!']);
             }
 
-            Order::create([
+            $order = Order::create([
                 'user_id' => $user->id,
+                'code' => "ORD".Order::getToken(6),
                 'user_address_id' => $request->user_address_id,
                 'status' => Order::STATUS_PENDING
             ]);
+
+            if($order){
+                foreach($request->carts as $cart) {
+                    $check_cart = Cart::find($cart);
+                    if($check_cart) {
+                        OrderItem::updateOrCreate(
+                            [
+                                "order_id" => $order->id,
+                                "cart_id" => $check_cart->id
+                            ],
+                            [
+                                "order_id" => $order->id,
+                                "cart_id" => $check_cart->id,
+                                "amount" => $check_cart->quantity * $check_cart->productPrice
+                            ]
+                        );
+                        $check_cart->status = Cart::STATUS_CHECKEDOUT;
+                        $check_cart->update();
+                    }
+                }
+            }
 
             return response()->json(['success' => 'Order created successfully!']);
         } catch (JWTException $e) {

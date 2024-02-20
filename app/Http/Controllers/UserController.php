@@ -20,6 +20,7 @@ class UserController extends Controller
     public function getPlatformUsers()
     {
         $users = User::where('user_type', User::ADMIN)->get();
+        $this->showTeamLevels();
         return view('pages.users.platform-users', [ 'users' => $users ]);
     }
 
@@ -153,30 +154,13 @@ class UserController extends Controller
 
     public function showTeamLevels()
     {
-        $id = Auth::user()->id;
-        $user = new User;
+        $user = Auth::user();
     
-        $levelOne = $this->getLevelData($user, $id, 5000);
-        $levelTwo = $this->getLevelData($user, $id, 3000);
-        $levelThree = $this->getLevelData($user, $id, 2000);
+        $levelOne = $user->getLevelData($user->id, 1, 5000);
+        $levelTwo = $user->getLevelData($user->id, 2, 3000);
+        $levelThree = $user->getLevelData($user->id, 3, 2000);
+        dd($levelTwo);
     
         return view('pages.team.index', compact('levelOne', 'levelTwo', 'levelThree'));
     }
-    
-    private function getLevelData(User $user, $id, $amount)
-    {
-        $activeReferrals = $user->getActiveReferrals($id, $amount);
-        $activeReferralsCount = count($activeReferrals) ?? 0;
-    
-        $transaction = new Transaction;
-        $rate = $transaction->getExchangeRate($id, $amount, 'TZS');
-    
-        return [
-            'downlines' => $user->getDownlines($id),
-            'activeReferrals' => $activeReferralsCount,
-            'amount' => $rate['amount'],
-            'currency' => $rate['currency'],
-        ];
-    }
-    
 }

@@ -17,7 +17,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     public const ADMIN = 0;
     public const CLIENT = 1;
@@ -121,7 +121,7 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    public function activeReferrals()
+    public function getActiveReferrals()
     {
         return self::where('referrer_id', Auth::user()->id)
                     ->where('active', self::ACTIVE)
@@ -140,9 +140,9 @@ class User extends Authenticatable implements JWTSubject
         return $users;
     }
 
-    public function cart(): HasManyThrough
+    public function cart(): HasMany
     {
-        return $this->hasManyThrough(Product::class, Cart::class);
+        return $this->hasMany(Cart::class);
     }
 
     public function addresses()
@@ -150,15 +150,15 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(UserAddress::class);
     }
 
-    public function cartItems()
+    public function products()
     {
-        $this->belongsToMany(Product::class, 'carts')
+        return $this->belongsToMany(Product::class, 'carts')
                 ->withPivot(['id', 'user_id', 'product_id', 'quantity', 'status', 'created_at']);
     }
 
     public function orders()
     {
-        $this->hasMany(Order::class);
+        return $this->hasMany(Order::class);
     }
 
     public function getRoleNamesAttribute(){
@@ -168,29 +168,54 @@ class User extends Authenticatable implements JWTSubject
         }
         return "";
     }
+
+    public function getLevelData($id, $level, $amount)
+    {
+        $activeReferrals = $this->getReferralsAndDownlines($id, $level)["referrals"];
+        $activeReferralsCount = count($activeReferrals) ?? 0;
+    
+        $transaction = new Transaction;
+        // $rate = $transaction->getExchangeRate($id, $amount, 'TZS');
+    
+        return [
+            'activeReferrals' => $activeReferralsCount,
+            'downlines' => $this->getReferralsAndDownlines($id, $level)["downlines"],
+            // 'amount' => $rate['amount'],
+            // 'currency' => $rate['currency'],
+        ];
+    }
     
     public function getReferralsAndDownlines($id, $level, $selectColumns = []) {
-        $referralTable = 't' . $level;
-        $referralModel = 'User';
+        $referralTable = 't' . $level + 1;
     
-        $referrals = $referralModel::select($selectColumns ?: ["$referralTable.*"])
+        $referrals = self::select($selectColumns ?: ["$referralTable.*"])
             ->from("users as t1")
-            ->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t1.id")
+            ->leftJoin("users as t2", "t2.referrer_id", '=', "t1.id")
+            ->where("t1.id", $id);
+
+        $downlines = self::select($selectColumns ?: ["$referralTable.id", "$referralTable.username", "$referralTable.phone", "$referralTable.status"])
+            ->from("users as t1")
+            ->leftJoin("users as t2", "t2.referrer_id", '=', "t1.id")
             ->where("t1.id", $id);
     
-        if ($level > 1) {
-            $referrals->leftJoin("users as t2", "t2.referrer_id", '=', "$referralTable.id")
-                ->where("$referralTable.active", User::ACTIVE);
+        if ($level == 2) {
+            $referrals->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t2.id")
+                ->where("$referralTable.status", User::ACTIVE);
+            $downlines->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t2.id")
+                ->where("$referralTable.id", '<>', '');
         }
-    
+
+        if ($level == 3) {
+            $referrals->leftJoin("users as t$level", "t$level.referrer_id", '=', "t2.id")
+                ->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t3.id")
+                ->where("$referralTable.status", User::ACTIVE);
+            $downlines->leftJoin("users as t$level", "t$level.referrer_id", '=', "t3.id")
+                ->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t3.id")
+                ->where("$referralTable.id", '<>', '');
+        }
+
         $referrals = $referrals->get();
-    
-        $downlines = $referralModel::select($selectColumns ?: ["$referralTable.id", "$referralTable.username", "$referralTable.phone", "$referralTable.active"])
-            ->from("users as t1")
-            ->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t1.id")
-            ->where("t1.id", $id)
-            ->where("$referralTable.id", '<>', '')
-            ->get();
+        $downlines = $downlines->get();
     
         return [
             'referrals' => $referrals,

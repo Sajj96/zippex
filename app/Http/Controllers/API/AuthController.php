@@ -70,7 +70,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => 'Valid phone number and password are required'], 422);
+            return response()->json(['error' => 'Valid phone number and password are required']);
         }
 
         try {

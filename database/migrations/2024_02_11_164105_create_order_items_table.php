@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('product_id');
-            $table->integer('quantity');
             $table->double('amount');
             $table->timestamps();
         });

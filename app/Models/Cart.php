@@ -30,4 +30,12 @@ class Cart extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function getProductPriceAttribute()
+    {
+        if($this->product) {
+            return $this->product->price;
+        }
+        return 0;
+    }
 }

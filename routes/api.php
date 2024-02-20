@@ -6,6 +6,7 @@ use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\PasswordResetController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProductCategoryController;
+use App\Http\Controllers\API\UserAddressController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,11 @@ Route::middleware('auth:api')->group(function ()
     Route::prefix('/products')->controller(ProductController::class)->group(function () {
         Route::get('/', 'index')->name('product.all');
         Route::get('/view/{id}', 'show')->name('product.view');
+    });
+
+    Route::prefix('/addresses')->controller(UserAddressController::class)->group(function () {
+        Route::get('/', 'index')->name('address.all');
+        Route::post('/add', 'add')->name('address.add');
     });
 
     Route::prefix('/product-categories')->controller(ProductCategoryController::class)->group(function () {
