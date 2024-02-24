@@ -116,7 +116,7 @@
             </li>
             @endcan
             @can(\App\Models\PermissionSet::PERMISSION_ORDERS_VIEW)
-            <li class=""><a href="javascript:void(0);"><i class="zmdi zmdi-mall"></i><span>Orders</span></a></li>
+            <li class=""><a href="{{ route('order') }}"><i class="zmdi zmdi-mall"></i><span>Orders</span></a></li>
             @endcan
             @can(\App\Models\PermissionSet::PERMISSION_TRANSACTIONS_VIEW)
             <li><a href="javascript:void(0);"><i class="zmdi zmdi-money"></i><span>Transactions</span></a></li>

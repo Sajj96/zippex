@@ -67,6 +67,7 @@ Route::middleware('auth:api')->group(function ()
 
     Route::prefix('/orders')->controller(OrderController::class)->group(function () {
         Route::get('/', 'index')->name('order.all');
+        Route::get('/view/{id}', 'show')->name('order.view');
         Route::post('/add', 'add')->name('order.add');
     });
 });

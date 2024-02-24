@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
@@ -56,6 +57,12 @@ Route::middleware('auth')->group(function() {
         Route::match(['get', 'post'], '/add', 'add')->name('product.category.add');
         Route::match(['get', 'post'], '/edit/{id?}', 'edit')->name('product.category.edit');
         Route::post('/delete', 'delete')->name('product.category.delete');
+    });
+
+    Route::prefix('/orders')->controller(OrderController::class)->group(function () {
+        Route::get('/', 'index')->name('order');
+        Route::get('/view/{id}', 'show')->name('order.show');
+        Route::post('/delete', 'delete')->name('order.delete');
     });
     
 });
