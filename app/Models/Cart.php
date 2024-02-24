@@ -31,6 +31,30 @@ class Cart extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function getProductNameAttribute()
+    {
+        if($this->product) {
+            return $this->product->name;
+        }
+        return "Unknown";
+    }
+
+    public function getProductCategoryAttribute()
+    {
+        if($this->product) {
+            return $this->product->categoryName;
+        }
+        return "Unknown";
+    }
+
+    public function getProductImageAttribute()
+    {
+        if($this->product) {
+            return $this->product->image_path;
+        }
+        return "Unknown";
+    }
+
     public function getProductPriceAttribute()
     {
         if($this->product) {

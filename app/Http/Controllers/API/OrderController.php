@@ -19,10 +19,37 @@ class OrderController extends Controller
         try {
 
             $user = Auth::user();
-            $orders = $user->orders()->with('cart')->get();
+            $orders = $user->orders()->with('products')->get();
+
+            $order_list = [];
+            $product_list = [];
+            foreach($orders as $key=>$order){
+                $order_list[] = array(
+                    "id" => $order->id,
+                    "code" => $order->code,
+                    "user_id" => $order->user_id,
+                    "user_address_id" => $order->user_address_id,
+                    "status" => $order->status,
+                    "products" => ""
+                );
+                
+                foreach($order->products as $product) {
+                    $product_list[] = array(
+                        "id" => $product->id,
+                        "product_category_id" => $product->productCategory,
+                        "name" => $product->productName,
+                        "price" => $product->productPrice,
+                        "image_path" => $product->productImage,
+                        "quantity" => $product->quantity,
+                        "amount" => $product->pivot->amount
+                    );
+                }
+
+                $order_list[$key]['products'] = $product_list;
+            }
 
             return response()->json([
-                'orders'          => $orders
+                'orders'  => $order_list
             ]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);

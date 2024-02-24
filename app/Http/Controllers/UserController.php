@@ -159,7 +159,6 @@ class UserController extends Controller
         $levelOne = $user->getLevelData($user->id, 1, 5000);
         $levelTwo = $user->getLevelData($user->id, 2, 3000);
         $levelThree = $user->getLevelData($user->id, 3, 2000);
-        dd($levelTwo);
     
         return view('pages.team.index', compact('levelOne', 'levelTwo', 'levelThree'));
     }

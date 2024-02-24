@@ -31,7 +31,7 @@ class Order extends Model
         return $this->belongsTo(UserAddress::class);
     }
 
-    public function cart()
+    public function products()
     {
         return $this->belongsToMany(Cart::class, 'order_items')
                     ->withPivot(['id', 'order_id', 'cart_id', 'amount']);

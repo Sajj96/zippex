@@ -62,8 +62,8 @@ class PasswordResetController extends Controller
 
         $validator = Validator::make($credentials, [
             'phone'             => 'required|string',
-            'current_password'  => 'required',
-            'new_password'      => 'required',
+            'current_password'  => 'required|string',
+            'new_password'      => 'required|string',
         ]);
 
         if ($validator->fails()) {

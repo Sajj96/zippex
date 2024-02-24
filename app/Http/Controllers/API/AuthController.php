@@ -95,9 +95,14 @@ class AuthController extends Controller
             $me = auth('api')->user();
 
             return response()->json([
-                'me' => $me
+                'me' => (object) array(
+                    "name" => $me->name,
+                    "username" => $me->username,
+                    "email" => $me->email,
+                    "phone" => $me->phone,
+                    'referral_code' => $me->referralCode
+                )
             ], 200);
-            return response()->json($me);
         } catch (\Throwable $exception) {
             return response()->json(['error' => $exception->getMessage()], 500);
         }
