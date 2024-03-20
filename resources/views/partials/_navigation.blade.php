@@ -121,6 +121,9 @@
             @can(\App\Models\PermissionSet::PERMISSION_TRANSACTIONS_VIEW)
             <li><a href="{{ route('transaction') }}"><i class="zmdi zmdi-money"></i><span>Transactions</span></a></li>
             @endcan
+            @can(\App\Models\PermissionSet::PERMISSION_PACKAGES_VIEW)
+            <li><a href="{{ route('package') }}"><i class="zmdi zmdi-delicious"></i><span>Packages</span></a></li>
+            @endcan
             @can(\App\Models\PermissionSet::PERMISSION_BLOGS_VIEW)
             <li class="@if(\Request::is('products'))  active @endif"> <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-blogger"></i><span>Blog</span></a>
                 <ul class="ml-menu">

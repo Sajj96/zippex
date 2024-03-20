@@ -19,7 +19,8 @@ class UserController extends Controller
                 "username" => $user->username,
                 "email" => $user->email,
                 "phone" => $user->phone,
-                'referral_code' => $user->referralCode
+                "referral_code" => $user->referralCode,
+                "package" => $user->package
             )
         ], 200);
     }
@@ -28,9 +29,9 @@ class UserController extends Controller
     {
         $user = auth('api')->user();
     
-        $levelOne = $user->getLevelData($user->id, 1, User::LEVEL_1_EARNING);
-        $levelTwo = $user->getLevelData($user->id, 2, User::LEVEL_2_EARNING);
-        $levelThree = $user->getLevelData($user->id, 3, User::LEVEL_3_EARNING);
+        $levelOne = $user->getLevelData($user->id, 1, $user->packageLevelOne);
+        $levelTwo = $user->getLevelData($user->id, 2, $user->packageLevelTwo);
+        $levelThree = $user->getLevelData($user->id, 3, $user->packageLevelThree);
     
         return response()->json([
             'level_one' => $levelOne,

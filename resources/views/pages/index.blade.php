@@ -23,7 +23,7 @@
         <div class="col-md-12 col-lg-4">
             <div class="card">
                 <div class="body">
-                    <h3 class="mt-0 mb-0">2,028</h3>
+                    <h3 class="mt-0 mb-0">{{ number_format($total_products) }}</h3>
                     <p class="text-muted">Total Products</p>
                     <div class="progress">
                         <div class="progress-bar l-amber" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%;"></div>
@@ -35,7 +35,7 @@
         <div class="col-md-12 col-lg-4">
             <div class="card">
                 <div class="body">
-                    <h3 class="mt-0 mb-0">510</h3>
+                    <h3 class="mt-0 mb-0">{{ number_format($total_orders) }}</h3>
                     <p class="text-muted">Total Orders</p>
                     <div class="progress">
                         <div class="progress-bar l-pink" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%;"></div>
@@ -47,7 +47,7 @@
         <div class="col-md-12 col-lg-4">
             <div class="card">
                 <div class="body">
-                    <h3 class="mt-0 mb-0">17</h3>
+                    <h3 class="mt-0 mb-0">{{ number_format($total_customers) }}</h3>
                     <p class="text-muted">Active Customers</p>
                     <div class="progress">
                         <div class="progress-bar l-green" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 45%;"></div>

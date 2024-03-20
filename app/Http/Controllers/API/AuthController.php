@@ -20,6 +20,7 @@ class AuthController extends Controller
             'phone'         => 'required|string|min:11|unique:users',
             'email'         => 'required|email|unique:users',
             'password'      => 'required|string',
+            'package'       => 'required|integer',
         ]);
 
         if($validator->fails()) {
@@ -41,7 +42,8 @@ class AuthController extends Controller
             $user->password      = Hash::make($request->password);
             $user->user_type     = User::CLIENT;
             $user->referrer_id   = $referrer ? $referrer->id : null;
-            $user->status        = User::ACTIVE;
+            $user->status        = User::INACTIVE;
+            $user->package_id    = $request->package;
 
             if (!$user->save()) {
 
@@ -101,7 +103,8 @@ class AuthController extends Controller
                     "email" => $me->email,
                     "phone" => $me->phone,
                     'referral_code' => $me->referralCode,
-                    "referrals" => count($me->referrals)  ?? '0'
+                    "referrals" => count($me->referrals)  ?? '0',
+                    "package" => $me->package
                 )
             ], 200);
         } catch (\Throwable $exception) {
@@ -145,8 +148,9 @@ class AuthController extends Controller
                 "username" => $user->username,
                 "email" => $user->email,
                 "phone" => $user->phone,
-                'referral_code' => $user->referralCode,
-                "referrals" => count($user->referrals)  ?? '0'
+                "referral_code" => $user->referralCode,
+                "referrals" => count($user->referrals)  ?? '0',
+                "package" => $user->package
             )
         ]);
     }

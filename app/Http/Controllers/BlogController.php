@@ -59,7 +59,7 @@ class BlogController extends Controller
                 'description' => 'required|string'
             ]);
 
-            $product = Blog::create([
+            $post = Blog::create([
                 'blog_category_id' => $request->category,
                 'title' => $request->title,
                 'description' => $request->description
@@ -78,7 +78,7 @@ class BlogController extends Controller
                 $image->toPng()->save(storage_path('/app/public/posts/' . $fileName));
                 $fileLink = url('storage/posts/'.$fileName);
 
-                $product->update([
+                $post->update([
                     'image_path' => $fileLink
                 ]);
             }

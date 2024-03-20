@@ -6,14 +6,14 @@
         <div class="row">
             <div class="col-lg-8 col-sm-12">
                 <div class="card">
-                    <img src="{{ asset('assets/images/boy-with-rocket-light.png') }}" width="500" alt="Sign In" />
+                    <img src="{{ asset('assets/images/logo.png') }}" width="400" alt="Sign In" />
                 </div>
             </div>
             <div class="col-lg-4 col-sm-12">
                 <form class="card auth_form" action="{{ route('login') }}" method="post">
                     @csrf
                     <div class="header">
-                        <img class="logo" src="assets/images/logo.png" alt="">
+                        <!-- <img class="logo" src="{{ asset('assets/images/logo.png') }}" alt=""> -->
                         <h5>{{ __('Login') }}</h5>
                     </div>
                     <div class="body">

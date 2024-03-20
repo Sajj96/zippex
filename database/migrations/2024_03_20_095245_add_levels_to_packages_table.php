@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('packages', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('name');
-            $table->double('price');
-            $table->double('commission')->nullable();
-            $table->timestamps();
+        Schema::table('packages', function (Blueprint $table) {
+            $table->double('level_one')->after('commission');
+            $table->double('level_two')->after('level_one');
+            $table->double('level_three')->after('level_two');
         });
     }
 
@@ -25,6 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('packages');
+        Schema::table('packages', function (Blueprint $table) {
+            //
+        });
     }
 };

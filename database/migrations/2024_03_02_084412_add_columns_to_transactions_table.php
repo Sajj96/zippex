@@ -13,12 +13,10 @@ return new class extends Migration
     {
         Schema::table('transactions', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id');
-            $table->string('phone');
             $table->string('balance');
             $table->double('amount');
             $table->double('amount_deposit');
             $table->double('fee');
-            $table->string('transaction_type');
             $table->integer('status');
             $table->softDeletes()->after('updated_at');
         });

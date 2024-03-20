@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\DataTables\TransactionsDataTable;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class TransactionController extends Controller
 {

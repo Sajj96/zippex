@@ -42,14 +42,15 @@ class Transaction extends Model
      */
     public static function getUserTotalEarnings($id)
     {
-        $rate1 = User::LEVEL_1_EARNING;
-        $rate2 = User::LEVEL_2_EARNING;
-        $rate3 = User::LEVEL_3_EARNING;
-
         $user = User::find($id);
-        $levelOne = $user->getLevelData($user->id, 1, User::LEVEL_1_EARNING)['activeReferrals'];
-        $levelTwo = $user->getLevelData($user->id, 2, User::LEVEL_2_EARNING)['activeReferrals'];
-        $levelThree = $user->getLevelData($user->id, 3, User::LEVEL_3_EARNING)['activeReferrals'];
+
+        $rate1 = $user->packageLevelOne;
+        $rate2 = $user->packageLevelTwo;
+        $rate3 = $user->packageLevelThree;
+
+        $levelOne = $user->getLevelData($user->id, 1, $rate1)['activeReferrals'];
+        $levelTwo = $user->getLevelData($user->id, 2, $rate2)['activeReferrals'];
+        $levelThree = $user->getLevelData($user->id, 3, $rate3)['activeReferrals'];
 
         $levelOneEarnings = $levelOne * $rate1;
         $levelTwoEarnings = $levelTwo * $rate2;
@@ -139,14 +140,23 @@ class Transaction extends Model
      */
     public function getWithdrawRequests()
     {
-        $withdraw_request = DB::table('transactions')
-                                ->join('users','transactions.user_id','=','users.id')
+        $withdraw_request = self::join('users','transactions.user_id','=','users.id')
                                 ->select('transactions.*','users.username','users.name')
                                 ->where('status',self::TRANSACTION_PENDING)
                                 ->get();
                                 
         $numRequest = count($withdraw_request) ?? 0;
         return $numRequest;
+    }
+
+    public static function getCommissionEarnings($id)
+    {
+        $earning = Revenue::where('type', Revenue::TYPE_COMMISSION)
+                        ->where('user_id', $id)
+                        ->sum('amount');
+
+        $earning_amount = $earning ?? 0;
+        return $earning_amount;
     }
 
     /**
@@ -157,8 +167,9 @@ class Transaction extends Model
     public static function getProfit($id)
     {
         $totalBalance = self::getUserTotalEarnings($id);
+        $commissionEarnings = self::getCommissionEarnings($id);
 
-        $profit_amount = $totalBalance;
+        $profit_amount = $totalBalance + $commissionEarnings;
         return $profit_amount;
     }
 

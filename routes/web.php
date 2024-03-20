@@ -4,6 +4,7 @@ use App\Http\Controllers\BlogCategoryController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\FAQController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PackageController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
@@ -47,6 +48,8 @@ Route::middleware('auth')->group(function() {
         Route::get('/view/{id?}', 'show')->name('user.show');
         Route::match(['get', 'post'], '/add', 'add')->name('user.add');
         Route::match(['get', 'post'], '/edit/{id?}', 'edit')->name('user.edit');
+        Route::post('/activate', 'activate')->name('user.activate');
+        Route::post('/deactivate', 'deactivate')->name('user.deactivate');
         Route::post('/delete', 'delete')->name('user.delete');
     });
 
@@ -102,6 +105,13 @@ Route::middleware('auth')->group(function() {
     Route::prefix('/transactions')->controller(TransactionController::class)->group(function () {
         Route::get('/', 'index')->name('transaction');
         Route::post('/delete', 'delete')->name('transaction.delete');
+    });
+
+    Route::prefix('/packages')->controller(PackageController::class)->group(function () {
+        Route::get('/', 'index')->name('package');
+        Route::match(['get', 'post'], '/add', 'add')->name('package.add');
+        Route::match(['get', 'post'], '/edit/{id?}', 'edit')->name('package.edit');
+        Route::post('/delete', 'delete')->name('package.delete');
     });
     
 });

@@ -40,9 +40,17 @@ class UsersDataTable extends DataTable
                 }
             })
             ->addColumn('action', function($row){
-                return '
-                    <div class="d-flex">
-                        <a href="'.route("user.show",$row->id).'" class="btn btn-primary btn-sm"><i class="zmdi zmdi-eye"></i></a>
+                $output = '<div class="d-flex">';
+                if ($row->status == 0) {
+                    $output .= '
+                    <form class="delete-form" action="'.route("user.activate").'" method="POST">
+                        <input type="hidden" name="_token" value="'.csrf_token().'">
+                        <input type="hidden" value="'.$row->id.'" name="id">
+                        <button type="submit" class="btn btn-success btn-sm"><i class="zmdi zmdi-check"></i></button>
+                    </form>
+                    ';
+                }
+                $output .= '<a href="'.route("user.show",$row->id).'" class="btn btn-primary btn-sm"><i class="zmdi zmdi-eye"></i></a>
                         <a href="'.route("user.edit",$row->id).'" class="btn btn-primary btn-sm"><i class="zmdi zmdi-edit"></i></a>
                         <form class="delete-form" action="'.route("user.delete").'" method="POST">
                             <input type="hidden" name="_token" value="'.csrf_token().'">
@@ -51,6 +59,8 @@ class UsersDataTable extends DataTable
                         </form>
                     </div>
                 ';
+
+                return $output;
             })
             ->filter(function ($query) {
                 $query->whereNot('user_type', User::ADMIN);

@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\BlogCategoryController;
+use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\CartController;
 use App\Http\Controllers\API\OrderController;
+use App\Http\Controllers\API\PackageController;
 use App\Http\Controllers\API\PasswordResetController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProductCategoryController;
@@ -72,5 +75,19 @@ Route::middleware('auth:api')->group(function ()
         Route::get('/', 'index')->name('order.all');
         Route::get('/view/{id}', 'show')->name('order.view');
         Route::post('/add', 'add')->name('order.add');
+    });
+
+    Route::prefix('/posts')->controller(BlogController::class)->group(function () {
+        Route::get('/', 'getAll')->name('post.all');
+        Route::get('/view/{id}', 'getOne')->name('post.view');
+    });
+
+    Route::prefix('/post-categories')->controller(BlogCategoryController::class)->group(function () {
+        Route::get('/', 'getAll')->name('post.category.all');
+        Route::get('/view/{id}', 'getOne')->name('post.category.view');
+    });
+
+    Route::prefix('/packages')->controller(PackageController::class)->group(function () {
+        Route::get('/', 'getAll')->name('package.all');
     });
 });

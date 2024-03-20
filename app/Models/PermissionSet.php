@@ -66,6 +66,12 @@ class PermissionSet extends Model
     public const PERMISSION_BLOGS_VIEW   = "PERMISSION_BLOGS_VIEW";
     public const PERMISSION_BLOG_DELETE  = "PERMISSION_BLOG_DELETE";
 
+    //Packages
+    public const PERMISSION_PACKAGE_ADD     = "PERMISSION_PACKAGE_ADD";
+    public const PERMISSION_PACKAGE_EDIT    = "PERMISSION_PACKAGE_EDIT";
+    public const PERMISSION_PACKAGES_VIEW   = "PERMISSION_PACKAGES_VIEW";
+    public const PERMISSION_PACKAGE_DELETE  = "PERMISSION_PACKAGE_DELETE";
+
     public static function permissions() {
         $refClass = new \ReflectionClass(static::class);
         $constantList =  $refClass->getConstants();

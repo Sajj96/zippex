@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DataTables\UsersDataTable;
 use App\Models\Transaction;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -163,4 +164,32 @@ class UserController extends Controller
             return back()->withErrors('User was not deleted');
         }
     }
+
+    public function activate(Request $request)
+    {
+        try {
+            $user = User::where('id', $request->id)->first();
+            $user->status = User::ACTIVE;
+            $user->created_at = Carbon::now();
+            if ($user->save()) {
+                return redirect()->route('user')->with('success', 'User activated successfully!');
+            }
+        } catch (\Exception $e) {
+            return redirect()->route('user')->with('error', $e->getMessage());
+        }
+    }
+
+    public function deactivate(Request $request)
+    {
+        try {
+            $user = User::where('id', $request->id)->first();
+            $user->status = User::INACTIVE;
+            if ($user->save()) {
+                return redirect()->route('user.show', $request->id)->with('success', 'User deactivated successfully!');
+            }
+        } catch (\Exception $th) {
+            return redirect()->route('user.show', $request->id)->with('error', 'User was not deactivated');
+        }
+    }
+
 }

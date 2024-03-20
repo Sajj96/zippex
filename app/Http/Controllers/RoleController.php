@@ -10,14 +10,16 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
-    public function index () {
+    public function index () 
+    {
         $roles = Role::get();
         return view('pages.users.roles.index',[
             'roles' => $roles
         ]);
     }
 
-    public function add(Request $request) {
+    public function add(Request $request) 
+    {
 
         if ($request->method() == 'GET') {
             $permissions = PermissionSet::permissionsGroups();
@@ -28,7 +30,7 @@ class RoleController extends Controller
         }
 
         try {
-            $request->validate([
+            $this->validate($request, [
                 'name' => 'required|unique:roles,name',
                 'permissions' => 'required|array',
             ]);
@@ -57,7 +59,8 @@ class RoleController extends Controller
         }
     }
 
-    public function edit(Request $request, $id=null) {
+    public function edit(Request $request, $id=null) 
+    {
         if (empty($id) && $request->has('id')){
             $id = $request->id;
         }
@@ -79,7 +82,7 @@ class RoleController extends Controller
         }
 
         try {
-            $request->validate([
+            $this->validate($request,[
                 'name' => 'required|unique:roles,name,'.$role->id,
                 'permissions' => 'nullable|array'
             ]);
@@ -95,7 +98,7 @@ class RoleController extends Controller
                     }
                 }
                 $role->syncPermissions($permissions);
-                return redirect('/roles')->with('success','Role edited successfully');
+                return redirect('/roles')->with('success','Role updated successfully');
             } else {
                 return back()->with('error','Failed to save changes');
             }
@@ -104,7 +107,8 @@ class RoleController extends Controller
         }
     }
 
-    public function delete(Request $request) {
+    public function delete(Request $request) 
+    {
         try {
             if ($request->has('role_id')) {
                 $role = Role::find($request->input('role_id'));

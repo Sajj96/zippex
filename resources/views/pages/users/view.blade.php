@@ -69,6 +69,12 @@
                         <hr>
                         <small class="text-muted">Referrer: </small>
                         <span>{{ $user->referrer->name ?? 'Not Specified' }}</span>
+                        <hr>
+                        <form class="delete-form" action="{{ route('user.deactivate') }}" method="POST">
+                            @csrf
+                            <input type="hidden" value="{{ $user->id }}" name="id">
+                            <button type="submit" class="btn btn-danger btn-block btn-sm">Deactivate</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -117,24 +123,103 @@
                                 </div>
                             </div>
                             <div role="tabpanel" class="tab-pane" id="levelone">
-                                <b>Level One</b>
-                                <p> Lorem ipsum dolor sit amet, ut duo atqui exerci dicunt, ius impedit mediocritatem an. Pri ut tation electram moderatius.
-                                    Per te suavitate essent aliquid
-                                    pro. Et eos nusquam accumsan, vide mentitum fabellas ne est, eu munere gubergren
-                                    sadipscing mel. </p>
+                                <b>Level One ({{ $levelOne['activeReferrals'] }})</b>
+                                <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Username</th>
+                                            <th>Phone No</th>
+                                            <th>Earned</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($levelOne['downlines'] as $key=>$downline)
+                                        <tr>
+                                            <td>
+                                                {{ $loop->iteration }}
+                                            </td>
+                                            <td>{{ $downline->username }}</td>
+                                            <td>{{ $downline->phone }}</td>
+                                            <td></td>
+                                            <td>
+                                                @if($downline->status == 1)
+                                                <span class="badge badge-success mr-2">Active</span>
+                                                @else
+                                                <span class="badge badge-danger mr-2">Inactive</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                             <div role="tabpanel" class="tab-pane" id="leveltwo">
-                                <b>Message Content</b>
-                                <p> ius impedit mediocritatem an. Pri ut tation electram moderatius.
-                                    Per te suavitate democritum. Duis nemore probatus ne quo, ad liber essent aliquid
-                                    pro. Et eos nusquam accumsan, vide mentitum fabellas ne est, eu munere gubergren
-                                    sadipscing mel. </p>
+                                <b>Level Two ({{$levelTwo['activeReferrals']}})</b>
+                                <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Username</th>
+                                            <th>Phone No</th>
+                                            <th>Earned</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($levelTwo['downlines'] as $key=>$downline)
+                                        <tr>
+                                            <td>
+                                                {{ $loop->iteration }}
+                                            </td>
+                                            <td>{{ $downline->username }}</td>
+                                            <td>{{ $downline->phone }}</td>
+                                            <td></td>
+                                            <td>
+                                                @if($downline->status == 1)
+                                                <span class="badge badge-success mr-2">Active</span>
+                                                @else
+                                                <span class="badge badge-danger mr-2">Inactive</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                             <div role="tabpanel" class="tab-pane" id="level">
-                                <b>Settings Content</b>
-                                <p> Lorem ipsum dolor sit amet, ut duo atqui exerci dicunt, ius impedit mediocritatem an. Pri ut tation electram moderatius.
-                                    Per te suavitate democritum. Duis nemore probatus ne quo, ad liber essent aliquid
-                                    pro. </p>
+                                <b>Level Three ({{$levelThree['activeReferrals']}})</b>
+                                <table class="table table-bordered table-striped table-hover dataTable js-exportable">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Username</th>
+                                            <th>Phone No</th>
+                                            <th>Earned</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($levelThree['downlines'] as $key=>$downline)
+                                        <tr>
+                                            <td>
+                                                {{ $loop->iteration }}
+                                            </td>
+                                            <td>{{ $downline->username }}</td>
+                                            <td>{{ $downline->phone }}</td>
+                                            <td></td>
+                                            <td>
+                                                @if($downline->status == 1)
+                                                <span class="badge badge-success mr-2">Active</span>
+                                                @else
+                                                <span class="badge badge-danger mr-2">Inactive</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

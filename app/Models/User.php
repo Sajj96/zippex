@@ -3,7 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -26,10 +29,6 @@ class User extends Authenticatable implements JWTSubject
     public const ACTIVE = 1;
 
     public const ROLE_SUPER_ADMIN = "Super Admin";
-
-    public const LEVEL_1_EARNING = 5000;
-    public const LEVEL_2_EARNING = 4000;
-    public const LEVEL_3_EARNING = 3000;
 
     /**
      * The attributes that are mass assignable.
@@ -144,6 +143,11 @@ class User extends Authenticatable implements JWTSubject
         return $users;
     }
 
+    public function package(): BelongsTo
+    {
+        return $this->belongsTo(Package::class);
+    }
+
     public function cart(): HasMany
     {
         return $this->hasMany(Cart::class);
@@ -226,5 +230,58 @@ class User extends Authenticatable implements JWTSubject
             'downlines' => $downlines,
         ];
     }
+
+    public function getPackageNameAttribute()
+    {
+        if($this->package){
+            return $this->package->name;
+        }
+
+        return "Unknown";
+    }
+
+    public function getPackagePriceAttribute()
+    {
+        if($this->package){
+            return $this->package->price;
+        }
+
+        return 0;
+    }
+
+    public function getPackageCommissionAttribute()
+    {
+        if($this->package){
+            return $this->package->commission;
+        }
+
+        return 0;
+    }
+
+    public function getPackageLevelOneAttribute()
+    {
+        if($this->package){
+            return $this->package->level_one;
+        }
+
+        return 0;
+    }
+
+    public function getPackageLevelTwoAttribute()
+    {
+        if($this->package){
+            return $this->package->level_two;
+        }
+
+        return 0;
+    }
     
+    public function getPackageLevelThreeAttribute()
+    {
+        if($this->package){
+            return $this->package->level_three;
+        }
+
+        return 0;
+    }
 }

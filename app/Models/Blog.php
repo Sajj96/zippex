@@ -24,4 +24,9 @@ class Blog extends Model
     {
         return Str::words(strip_tags($this->description), self::LIMIT);
     }
+
+    public function blogCategory()
+    {
+        return $this->belongsTo(BlogCategory::class);
+    }
 }
