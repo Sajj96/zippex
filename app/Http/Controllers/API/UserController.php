@@ -23,4 +23,19 @@ class UserController extends Controller
             )
         ], 200);
     }
+
+    public function getDownlines()
+    {
+        $user = auth('api')->user();
+    
+        $levelOne = $user->getLevelData($user->id, 1, User::LEVEL_1_EARNING);
+        $levelTwo = $user->getLevelData($user->id, 2, User::LEVEL_2_EARNING);
+        $levelThree = $user->getLevelData($user->id, 3, User::LEVEL_3_EARNING);
+    
+        return response()->json([
+            'level_one' => $levelOne,
+            'level_two' => $levelTwo,
+            'level_three' => $levelThree
+        ]);
+    }
 }

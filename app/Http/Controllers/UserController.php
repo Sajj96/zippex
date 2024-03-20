@@ -20,7 +20,6 @@ class UserController extends Controller
     public function getPlatformUsers()
     {
         $users = User::where('user_type', User::ADMIN)->get();
-        $this->showTeamLevels();
         return view('pages.users.platform-users', [ 'users' => $users ]);
     }
 
@@ -35,8 +34,21 @@ class UserController extends Controller
             return redirect('/users')->withError('User not found');
         }
 
+        $levelOne = $user->getLevelData($user->id, 1, User::LEVEL_1_EARNING);
+        $levelTwo = $user->getLevelData($user->id, 2, User::LEVEL_2_EARNING);
+        $levelThree = $user->getLevelData($user->id, 3, User::LEVEL_3_EARNING);
+        $orders = $user->orders;
+        $profit = Transaction::getProfit($user->id);
+        $user_address = $user->addresses()->latest()->take(1)->first();
+
         return view('pages.users.view', [
-            'user' => $user
+            'user' => $user,
+            'orders' => $orders,
+            'profit' => $profit,
+            'user_address' => $user_address,
+            'levelOne' => $levelOne,
+            'levelTwo' => $levelTwo,
+            'levelThree' => $levelThree
         ]);
     }
 
@@ -150,16 +162,5 @@ class UserController extends Controller
         } catch (\Exception $th) {
             return back()->withErrors('User was not deleted');
         }
-    }
-
-    public function showTeamLevels()
-    {
-        $user = Auth::user();
-    
-        $levelOne = $user->getLevelData($user->id, 1, 5000);
-        $levelTwo = $user->getLevelData($user->id, 2, 3000);
-        $levelThree = $user->getLevelData($user->id, 3, 2000);
-    
-        return view('pages.team.index', compact('levelOne', 'levelTwo', 'levelThree'));
     }
 }

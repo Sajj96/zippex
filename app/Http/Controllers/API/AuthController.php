@@ -100,7 +100,8 @@ class AuthController extends Controller
                     "username" => $me->username,
                     "email" => $me->email,
                     "phone" => $me->phone,
-                    'referral_code' => $me->referralCode
+                    'referral_code' => $me->referralCode,
+                    "referrals" => count($me->referrals)  ?? '0'
                 )
             ], 200);
         } catch (\Throwable $exception) {
@@ -144,7 +145,8 @@ class AuthController extends Controller
                 "username" => $user->username,
                 "email" => $user->email,
                 "phone" => $user->phone,
-                'referral_code' => $user->referralCode
+                'referral_code' => $user->referralCode,
+                "referrals" => count($user->referrals)  ?? '0'
             )
         ]);
     }

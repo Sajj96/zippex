@@ -46,7 +46,10 @@ Route::middleware('auth:api')->group(function ()
     Route::prefix('/products')->controller(ProductController::class)->group(function () {
         Route::get('/', 'index')->name('product.all');
         Route::get('/view/{id}', 'show')->name('product.view');
+        Route::get('/search/{slug?}', 'search')->name('product.search');
     });
+
+    Route::get('/users/downlines', [App\Http\Controllers\API\UserController::class, 'getDownlines'])->name('user.downlines');
 
     Route::prefix('/addresses')->controller(UserAddressController::class)->group(function () {
         Route::get('/', 'index')->name('address.all');

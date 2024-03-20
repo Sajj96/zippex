@@ -124,14 +124,22 @@ class CartController extends Controller
 
     public function delete(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'cart_id'      => 'required|integer'
+        ]);
+
+        if($validator->fails()) {
+            return response()->json(['error' => $validator->errors()->toArray()]);
+        }
+
         try {
-            $cart = Cart::find($request->id);
+            $cart = Cart::find($request->cart_id);
             if(!$cart) {
                 return response()->json(['error' => 'Product not found in cart!']);
             }
             
             if($cart->delete()){
-                return response()->json(['success' => 'Product removed to cart successfully!']);
+                return response()->json(['success' => 'Product removed from cart successfully!']);
             }
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()]);

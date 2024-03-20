@@ -27,6 +27,10 @@ class User extends Authenticatable implements JWTSubject
 
     public const ROLE_SUPER_ADMIN = "Super Admin";
 
+    public const LEVEL_1_EARNING = 5000;
+    public const LEVEL_2_EARNING = 4000;
+    public const LEVEL_3_EARNING = 3000;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -124,7 +128,7 @@ class User extends Authenticatable implements JWTSubject
     public function getActiveReferrals()
     {
         return self::where('referrer_id', Auth::user()->id)
-                    ->where('active', self::ACTIVE)
+                    ->where('status', self::ACTIVE)
                     ->get();
     }
 
@@ -136,7 +140,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function getAllActiveUsers()
     {
-        $users = self::where('active',1)->count();
+        $users = self::where('status',1)->count();
         return $users;
     }
 
@@ -173,15 +177,11 @@ class User extends Authenticatable implements JWTSubject
     {
         $activeReferrals = $this->getReferralsAndDownlines($id, $level)["referrals"];
         $activeReferralsCount = count($activeReferrals) ?? 0;
-    
-        $transaction = new Transaction;
-        // $rate = $transaction->getExchangeRate($id, $amount, 'TZS');
+        $downlines = $this->getReferralsAndDownlines($id, $level)["downlines"];
     
         return [
             'activeReferrals' => $activeReferralsCount,
-            'downlines' => $this->getReferralsAndDownlines($id, $level)["downlines"],
-            // 'amount' => $rate['amount'],
-            // 'currency' => $rate['currency'],
+            'downlines' => $downlines,
         ];
     }
     
@@ -191,16 +191,19 @@ class User extends Authenticatable implements JWTSubject
         $referrals = self::select($selectColumns ?: ["$referralTable.*"])
             ->from("users as t1")
             ->leftJoin("users as t2", "t2.referrer_id", '=', "t1.id")
-            ->where("t1.id", $id);
+            ->where("t1.id", $id)
+            ->where("$referralTable.id", '<>', '');
 
         $downlines = self::select($selectColumns ?: ["$referralTable.id", "$referralTable.username", "$referralTable.phone", "$referralTable.status"])
             ->from("users as t1")
             ->leftJoin("users as t2", "t2.referrer_id", '=', "t1.id")
-            ->where("t1.id", $id);
+            ->where("t1.id", $id)
+            ->where("$referralTable.id", '<>', '');
     
         if ($level == 2) {
             $referrals->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t2.id")
-                ->where("$referralTable.status", User::ACTIVE);
+                ->where("$referralTable.status", User::ACTIVE)
+                ->where("$referralTable.id", '<>', '');
             $downlines->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t2.id")
                 ->where("$referralTable.id", '<>', '');
         }
@@ -208,7 +211,8 @@ class User extends Authenticatable implements JWTSubject
         if ($level == 3) {
             $referrals->leftJoin("users as t$level", "t$level.referrer_id", '=', "t2.id")
                 ->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t3.id")
-                ->where("$referralTable.status", User::ACTIVE);
+                ->where("$referralTable.status", User::ACTIVE)
+                ->where("$referralTable.id", '<>', '');
             $downlines->leftJoin("users as t$level", "t$level.referrer_id", '=', "t3.id")
                 ->leftJoin("users as $referralTable", "$referralTable.referrer_id", '=', "t3.id")
                 ->where("$referralTable.id", '<>', '');

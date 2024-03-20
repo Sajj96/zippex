@@ -1,9 +1,14 @@
 <?php
 
+use App\Http\Controllers\BlogCategoryController;
+use App\Http\Controllers\BlogController;
+use App\Http\Controllers\FAQController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductCategoryController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TestimonyController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -63,6 +68,40 @@ Route::middleware('auth')->group(function() {
         Route::get('/', 'index')->name('order');
         Route::get('/view/{id}', 'show')->name('order.show');
         Route::post('/delete', 'delete')->name('order.delete');
+    });
+
+    Route::prefix('/posts')->controller(BlogController::class)->group(function () {
+        Route::get('/', 'index')->name('blog');
+        Route::get('/view/{id}', 'show')->name('blog.show');
+        Route::match(['get', 'post'], '/add', 'add')->name('blog.add');
+        Route::match(['get', 'post'], '/edit/{id?}', 'edit')->name('blog.edit');
+        Route::post('/delete', 'delete')->name('blog.delete');
+    });
+
+    Route::prefix('/faqs')->controller(FAQController::class)->group(function () {
+        Route::get('/', 'index')->name('faq');
+        Route::get('/view/{id}', 'show')->name('faq.show');
+        Route::match(['get', 'post'], '/add', 'add')->name('faq.add');
+        Route::match(['get', 'post'], '/edit/{id?}', 'edit')->name('faq.edit');
+        Route::post('/delete', 'delete')->name('faq.delete');
+    });
+
+    Route::prefix('/testimonials')->controller(TestimonyController::class)->group(function () {
+        Route::get('/', 'index')->name('testimony');
+        Route::get('/view/{id}', 'show')->name('testimony.show');
+        Route::post('/delete', 'delete')->name('testimony.delete');
+    });
+
+    Route::prefix('/post-categories')->controller(BlogCategoryController::class)->group(function () {
+        Route::get('/', 'index')->name('blog.category');
+        Route::match(['get', 'post'], '/add', 'add')->name('blog.category.add');
+        Route::match(['get', 'post'], '/edit/{id?}', 'edit')->name('blog.category.edit');
+        Route::post('/delete', 'delete')->name('blog.category.delete');
+    });
+
+    Route::prefix('/transactions')->controller(TransactionController::class)->group(function () {
+        Route::get('/', 'index')->name('transaction');
+        Route::post('/delete', 'delete')->name('transaction.delete');
     });
     
 });

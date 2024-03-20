@@ -163,7 +163,7 @@ class OrderController extends Controller
     public function delete(Request $request)
     {
         try {
-            $order = Order::find($request->id);
+            $order = Order::find($request->order_id);
             if(!$order) {
                 return response()->json(['error' => 'Order not found!']);
             }

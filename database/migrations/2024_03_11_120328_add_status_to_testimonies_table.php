@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('f_a_q_s', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->text('question');
-            $table->text('answer');
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::table('testimonies', function (Blueprint $table) {
+            $table->integer('status')->after('rate')->default(0);
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('f_a_q_s');
+        Schema::table('testimonies', function (Blueprint $table) {
+            //
+        });
     }
 };

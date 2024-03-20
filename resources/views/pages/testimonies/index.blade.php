@@ -1,18 +1,18 @@
-@extends('layouts.master', ['title' => 'Products'])
+@extends('layouts.master', ['title' => 'Testimonials'])
 
 @section('styles')
 <link rel="stylesheet" href="{{ asset('assets/plugins/jquery-datatable/dataTables.bootstrap4.min.css')}}">
 @endsection
 
 @section('workspace')
-@section('breadcumb')
+@section('breadcrumb')
 <div class="block-header">
     <div class="row">
         <div class="col-lg-7 col-md-6 col-sm-12">
-            <h2>Products</h2>
+            <h2>Testimonials</h2>
             <ul class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('home') }}"><i class="zmdi zmdi-home"></i> Home</a></li>
-                <li class="breadcrumb-item"><a href="javascript:void(0);">Products</a></li>
+                <li class="breadcrumb-item active"><a href="javascript:void(0);">Testimonials</a></li>
             </ul>
             <button class="btn btn-primary btn-icon mobile_menu" type="button"><i class="zmdi zmdi-sort-amount-desc"></i></button>
         </div>
@@ -22,6 +22,7 @@
     </div>
 </div>
 @endsection
+
 <div class="body_scroll">
     <div class="container-fluid">
 
@@ -30,19 +31,7 @@
             <div class="col-lg-12">
                 <div class="card">
                     <div class="header">
-                        <h2><strong>Exportable</strong> Examples </h2>
-                        <ul class="header-dropdown">
-                            <li class="dropdown"> <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> <i class="zmdi zmdi-more"></i> </a>
-                                <ul class="dropdown-menu dropdown-menu-right slideUp">
-                                    <li><a href="javascript:void(0);">Action</a></li>
-                                    <li><a href="javascript:void(0);">Another action</a></li>
-                                    <li><a href="javascript:void(0);">Something else</a></li>
-                                </ul>
-                            </li>
-                            <li class="remove">
-                                <a role="button" class="boxs-close"><i class="zmdi zmdi-close"></i></a>
-                            </li>
-                        </ul>
+                        <h2><strong>Testimonials</strong> list </h2>
                     </div>
                     <div class="body">
                         <div class="table-responsive">
@@ -50,39 +39,34 @@
                                 <thead>
                                     <tr>
                                         <th>Name</th>
-                                        <th>Position</th>
-                                        <th>Office</th>
-                                        <th>Age</th>
-                                        <th>Start date</th>
-                                        <th>Salary</th>
+                                        <th>Comment</th>
+                                        <th>Rate</th>
+                                        <th>Status</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @foreach($testimonies as $testimony)
                                     <tr>
-                                        <td>Tiger Nixon</td>
-                                        <td>System Architect</td>
-                                        <td>Edinburgh</td>
-                                        <td>61</td>
-                                        <td>2011/04/25</td>
-                                        <td>$320,800</td>
+                                        <td>{{ $testimony->userName }}</td>
+                                        <td></td>
+                                        <td>{{ $testimony->rate }}</td>
                                         <td>
-                                            <button class="btn btn-primary btn-sm"><i class="zmdi zmdi-edit"></i></button>
-                                            <button class="btn btn-danger btn-sm"><i class="zmdi zmdi-delete"></i></button>
+                                            @if($testimony->status == 0)
+                                            <span class="badge badge-warning">Draft</span>
+                                            @else
+                                            <span class="badge badge-success">Published</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="#" class="btn btn-danger btn-sm" onclick="event.preventDefault(); document.getElementById('delete-form').submit();"><i class="zmdi zmdi-delete"></i></a>
+                                            <form id="delete-form" action="{{ route('testimony.delete') }}">
+                                                @csrf
+                                                <input type="hidden" name="testimony_id" value="{{ $testimony->id }}">
+                                            </form>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>Garrett Winters</td>
-                                        <td>Accountant</td>
-                                        <td>Tokyo</td>
-                                        <td>63</td>
-                                        <td>2011/07/25</td>
-                                        <td>$170,750</td>
-                                        <td>
-                                            <button class="btn btn-primary btn-sm"><i class="zmdi zmdi-edit"></i></button>
-                                            <button class="btn btn-danger btn-sm"><i class="zmdi zmdi-delete"></i></button>
-                                        </td>
-                                    </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -91,7 +75,6 @@
             </div>
         </div>
     </div>
-
 </div>
 @endsection
 

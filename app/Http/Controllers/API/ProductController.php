@@ -35,6 +35,9 @@ class ProductController extends Controller
                 return response()->json(['error' => 'Product not found']);
             }
 
+            $product->views = $product->views + 1;
+            $product->update();
+
             return response()->json([
                 'product'          => (object) array(
                     "id" => $product->id,
@@ -49,5 +52,24 @@ class ProductController extends Controller
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function search($slug = null) 
+    {
+        $products = Product::whereName('name', 'LIKE', '%'.$slug.'%')
+                    ->get();
+        $product_list = [];
+        foreach($products as $product) {
+            $product_list[] = array(
+                    "id" => $product->id,
+                    "product_category_id" => $product->product_category_id,
+                    "name" => $product->name,
+                    "price" => $product->price,
+                    "description" => strip_tags($product->description),
+                    "quantity" => $product->quantity,
+                    "image_path" => $product->image_path
+            );
+        }
+        return response()->json([ 'products' => $product_list ]);
     }
 }

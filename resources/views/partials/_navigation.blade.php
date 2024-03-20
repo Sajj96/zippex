@@ -119,10 +119,17 @@
             <li class=""><a href="{{ route('order') }}"><i class="zmdi zmdi-mall"></i><span>Orders</span></a></li>
             @endcan
             @can(\App\Models\PermissionSet::PERMISSION_TRANSACTIONS_VIEW)
-            <li><a href="javascript:void(0);"><i class="zmdi zmdi-money"></i><span>Transactions</span></a></li>
+            <li><a href="{{ route('transaction') }}"><i class="zmdi zmdi-money"></i><span>Transactions</span></a></li>
             @endcan
             @can(\App\Models\PermissionSet::PERMISSION_BLOGS_VIEW)
-            <li> <a href="javascript:void(0);"><i class="zmdi zmdi-blogger"></i><span>Blog</span></a></li>
+            <li class="@if(\Request::is('products'))  active @endif"> <a href="javascript:void(0);" class="menu-toggle"><i class="zmdi zmdi-blogger"></i><span>Blog</span></a>
+                <ul class="ml-menu">
+                    @can(\App\Models\PermissionSet::PERMISSION_CATEGORIES_VIEW)
+                    <li><a href="{{ route('blog.category') }}">Categories</a></li>
+                    @endcan
+                    <li><a href="{{ route('blog') }}">All Posts</a></li>
+                </ul>
+            </li>
             @endcan
             @can(\App\Models\PermissionSet::PERMISSION_ROLES_VIEW)
             <li class="@if(\Request::is('roles') || \Request::is('roles/*'))  active @endif"> <a href="{{ route('role') }}"><i class="zmdi zmdi-shield-check"></i><span>Roles</span></a></li>
@@ -136,10 +143,10 @@
             </li>
             @endcan
             @can(\App\Models\PermissionSet::PERMISSION_FAQS_VIEW)
-            <li> <a href="javascript:void(0);"><i class="zmdi zmdi-help-outline"></i><span>FAQ</span></a></li>
+            <li> <a href="{{ route('faq') }}"><i class="zmdi zmdi-help-outline"></i><span>FAQ</span></a></li>
             @endcan
             @can(\App\Models\PermissionSet::PERMISSION_TESTIMONIES_VIEW)
-            <li> <a href="javascript:void(0);"><i class="zmdi zmdi-comments"></i><span>Testimonies</span></a></li>
+            <li> <a href="{{ route('testimony') }}"><i class="zmdi zmdi-comments"></i><span>Testimonies</span></a></li>
             @endcan
         </ul>
     </div>

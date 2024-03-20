@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Order;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
@@ -12,7 +12,7 @@ use Yajra\DataTables\Html\Editor\Editor;
 use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
-class OrdersDataTable extends DataTable
+class TransactionsDataTable extends DataTable
 {
     /**
      * Build the DataTable class.
@@ -26,10 +26,7 @@ class OrdersDataTable extends DataTable
             ->addColumn('user', function ($row) {
                 return $row->userName;
             })
-            ->addColumn('address', function ($row) {
-                return $row->userAddress;
-            })
-            ->addColumn('created_on', function ($row) {
+            ->addColumn('made_on', function ($row) {
                 return date('M d Y', strtotime($row->created_at));
             })
             ->addColumn('status', function ($row) {
@@ -44,10 +41,9 @@ class OrdersDataTable extends DataTable
             ->addColumn('action', function ($row) {
                 return '
                     <div class="d-flex">
-                        <a href="' . route("order.show", $row->id) . '" class="btn btn-primary btn-sm"><i class="zmdi zmdi-eye"></i></a>
-                        <form class="delete-form" action="' . route("order.delete") . '" method="POST">
+                        <form class="delete-form" action="' . route("transaction.delete") . '" method="POST">
                             <input type="hidden" name="_token" value="' . csrf_token() . '">
-                            <input type="hidden" value="' . $row->id . '" name="order_id">
+                            <input type="hidden" value="' . $row->id . '" name="transaction_id">
                             <button type="submit" class="btn btn-danger btn-sm"><i class="zmdi zmdi-delete"></i></button>
                         </form>
                     </div>
@@ -61,7 +57,7 @@ class OrdersDataTable extends DataTable
     /**
      * Get the query source of dataTable.
      */
-    public function query(Order $model): QueryBuilder
+    public function query(Transaction $model): QueryBuilder
     {
         return $model->newQuery();
     }
@@ -72,17 +68,17 @@ class OrdersDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('orders-table')
-            ->columns($this->getColumns())
-            ->minifiedAjax()
-            ->dom('Bfrtip')
-            ->orderBy(1)
-            ->selectStyleSingle()
-            ->buttons([
-                Button::make('excel'),
-                Button::make('csv'),
-                Button::make('pdf')
-            ]);
+                    ->setTableId('transactions-table')
+                    ->columns($this->getColumns())
+                    ->minifiedAjax()
+                    ->dom('Bfrtip')
+                    ->orderBy(1)
+                    ->selectStyleSingle()
+                    ->buttons([
+                        Button::make('excel'),
+                        Button::make('csv'),
+                        Button::make('pdf')
+                    ]);
     }
 
     /**
@@ -93,11 +89,14 @@ class OrdersDataTable extends DataTable
         return [
             Column::make('id')
                 ->data('DT_RowIndex'),
-            Column::make('code'),
             Column::make('user'),
-            Column::make('address'),
+            Column::make('phone'),
+            Column::make('amount'),
+            Column::make('amount_deposit')
+                    ->title('Deposit'),
+            Column::make('type'),
+            Column::make('made_on'),
             Column::make('status'),
-            Column::make('created_on'),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)
@@ -111,6 +110,6 @@ class OrdersDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'Orders_' . date('YmdHis');
+        return 'Transactions_' . date('YmdHis');
     }
 }

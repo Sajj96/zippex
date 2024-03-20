@@ -32,20 +32,22 @@
                         <h4 class="m-t-10">{{ ucwords($user->name) }}</h4>
                         <h6>@ {{ $user->username }}</h6>
                         <div class="row">
+                            @if($user_address)
                             <div class="col-12">
-                                <p class="text-muted">795 Folsom Ave, Suite 600 San Francisco, CADGE 94107</p>
+                                <p class="text-muted">{{ $user_address->street.", ".$user_address->ward.", ".$user_address->district.", ". $user_address->region}}</p>
                             </div>
+                            @endif
                             <div class="col-4">
                                 <small>Profit</small>
-                                <h5>852</h5>
+                                <h5>{{ $profit }}</h5>
                             </div>
                             <div class="col-4">
                                 <small>Orders</small>
-                                <h5>13k</h5>
+                                <h5>{{ count($orders) }}</h5>
                             </div>
                             <div class="col-4">
                                 <small>Referrals</small>
-                                <h5>234</h5>
+                                <h5>{{ count($user->referrals)  ?? '0' }}</h5>
                             </div>
                         </div>
                     </div>
@@ -67,9 +69,6 @@
                         <hr>
                         <small class="text-muted">Referrer: </small>
                         <span>{{ $user->referrer->name ?? 'Not Specified' }}</span>
-                        <hr>
-                        <small class="text-muted">Referrals: </small>
-                        <span>{{ count($user->referrals)  ?? '0' }}</span>
                     </div>
                 </div>
             </div>
@@ -85,14 +84,40 @@
                         <!-- Tab panes -->
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane in active" id="order">
-                                <b>Home Content</b>
-                                <p> Lorem ipsum dolor sit amet, Pri ut tation electram moderatius.
-                                    Per te suavitate democritum. Duis nemore probatus ne quo, ad liber essent aliquid
-                                    pro. Et eos nusquam accumsan, vide mentitum fabellas ne est, eu munere gubergren
-                                    sadipscing mel. </p>
+                                <b>Orders</b>
+                                <div class="table-responsive">
+                                    <table class="table table-hover c_table theme-color">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Code</th>
+                                                <th>Address</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($orders as $order)
+                                            <tr>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $order->code }}</td>
+                                                <td>{{ $order->userAddress }}</td>
+                                                <td>
+                                                    @if($order->status == 0)
+                                                    <span class="badge badge-warning mr-2">Pending</span>
+                                                    @elseif($order->status == 1)
+                                                    <span class="badge badge-success mr-2">Paid</span>
+                                                    @else
+                                                    <span class="badge badge-danger mr-2">Canceled</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                             <div role="tabpanel" class="tab-pane" id="levelone">
-                                <b>Profile Content</b>
+                                <b>Level One</b>
                                 <p> Lorem ipsum dolor sit amet, ut duo atqui exerci dicunt, ius impedit mediocritatem an. Pri ut tation electram moderatius.
                                     Per te suavitate essent aliquid
                                     pro. Et eos nusquam accumsan, vide mentitum fabellas ne est, eu munere gubergren
